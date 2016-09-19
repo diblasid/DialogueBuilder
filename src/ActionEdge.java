@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.QuadCurve2D;
 
 public class ActionEdge {
@@ -16,10 +16,10 @@ public class ActionEdge {
 	public static final double ARROW_ANGLE_RAD = Math.PI / 8, ANGLE_OFFSET = 0,
 			ARROW_WIDTH = 0.1;
 
-	private static final int COLOR = 1, RADIUS = 2, SELECTION_RADIUS = 15;
+	private static final int COLOR = 1, RADIUS = 2, SELECTION_RADIUS = 20;
 	public static final int ARROW_HEAD_SIZE = 1;
 
-	private Rectangle selection;
+	private Ellipse2D selection;
 	private PropertyMap properties;
 
 	public ActionEdge(DialogueState start) {
@@ -31,25 +31,31 @@ public class ActionEdge {
 				start.getCenterY());
 		this.pointStart.setLocation(temp.getX(), temp.getY());
 		this.pointEnd.setLocation(temp.getX(), temp.getY());
-		this.selection = new Rectangle();
-		this.selection.setFrame((int) (temp.getX() - SELECTION_RADIUS),
-				(int) (temp.getY() - SELECTION_RADIUS),
-				(int) (2 * SELECTION_RADIUS), (int) (2 * SELECTION_RADIUS));
+		this.selection = new Ellipse2D.Double();
+		this.selection.setFrameFromCenter(temp.getX(), temp.getY(), temp.getX() + SELECTION_RADIUS, temp.getY() + SELECTION_RADIUS);
 		this.properties.put(COLOR, Color.BLACK);
 		this.properties.put(RADIUS, 0f);
 
 	}
 
 	public void refreshSelector() {
-		int tempX = (int) ((this.pointStart.getX() + this.pointEnd.getX()) / 2 - SELECTION_RADIUS);
-		int tempY = (int) ((this.pointEnd.getY() + this.pointStart.getY()) / 2 - SELECTION_RADIUS);
+		int tempX = (int) ((this.pointStart.getX() + this.pointEnd.getX()) / 2);
+		int tempY = (int) ((this.pointEnd.getY() + this.pointStart.getY()) / 2);
+		
+		double normal = this.getAngle() + Math.PI / 2;
+		
+		double controlX = tempX + this.properties.getFloatValue(RADIUS)
+		* Math.cos(normal);
+		double controlY = tempY - this.properties.getFloatValue(RADIUS)
+		* Math.sin(normal);
+		this.selection.setFrameFromCenter(controlX, controlY, controlX + SELECTION_RADIUS, controlY + SELECTION_RADIUS);
 
-		this.selection.setFrame(tempX, tempY, SELECTION_RADIUS,
-				SELECTION_RADIUS);
 	}
 
 	public void setRadius(float radius) {
 		this.properties.replace(RADIUS, radius);
+		this.refreshSelector();
+		
 	}
 
 	public double getAngle() {
@@ -87,7 +93,7 @@ public class ActionEdge {
 		return finishState;
 	}
 
-	public Rectangle getSelection() {
+	public Ellipse2D getSelection() {
 		return this.selection;
 	}
 
@@ -95,8 +101,8 @@ public class ActionEdge {
 
 		Graphics2D g2d = (Graphics2D) g;
 
-		g2d.setColor(SELECTION_COLOR);
-		g2d.fill(this.selection);
+
+
 
 		g2d.setColor((Color) this.properties.get(COLOR));
 		g2d.setStroke(new BasicStroke((int) ARROW_WIDTH * unitSize));
@@ -113,22 +119,26 @@ public class ActionEdge {
 			double normal = this.getAngle() + Math.PI / 2;
 			float newX = (float) (start.getX() + end.getX()) / 2;
 			float newY = (float) (start.getY() + end.getY()) / 2;
-			double controlX = newX + this.properties.getFloatValue(RADIUS)
-					* unitSize * Math.cos(normal);
-			double controlY = newY - this.properties.getFloatValue(RADIUS)
-					* unitSize * Math.sin(normal);
+			double controlX = newX + 2*this.properties.getFloatValue(RADIUS)
+					* Math.cos(normal);
+			double controlY = newY - 2*this.properties.getFloatValue(RADIUS)
+					* Math.sin(normal);
 			q.setCurve((float) newStart.getX(), (float) newStart.getY(),
 					(float) (controlX), (float) (controlY),
 					(float) newEnd.getX(), (float) newEnd.getY());
 			g2d.draw(q);
 			this.drawCurvedArrowHead(g2d, unitSize, ANGLE_OFFSET, controlX,
 					controlY);
+			g2d.setColor(SELECTION_COLOR);
+			g2d.fill(this.selection);
 			return;
 
 		}
 		g2d.drawLine((int) start.getX(), (int) start.getY(), (int) end.getX(),
 				(int) end.getY());
 		this.drawArrowHead(g2d, unitSize);
+		g2d.setColor(SELECTION_COLOR);
+		g2d.fill(this.selection);
 
 	}
 
