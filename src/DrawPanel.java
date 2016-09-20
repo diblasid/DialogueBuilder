@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -25,6 +26,7 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 
 	private DialogueState selectedState;
 	private ActionEdge newAction, selectedAction;
+	private Dimension preferred;
 
 	private long mouseX, mouseY;
 	public static final int DEFAULT_STATE = 0, CREATING_ACTION = 1,
@@ -32,9 +34,10 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 
 	private int drawState = DEFAULT_STATE;
 
-	public DrawPanel(int dimPixels, Dialogue dialogue) {
+	public DrawPanel(int dimPixels, Dialogue dialogue, Dimension preferred) {
 		this.dialogue = dialogue;
 		this.dimPixels = dimPixels;
+		this.preferred = preferred;
 		this.addMouseListener(new MyMouseListener());
 		this.addMouseMotionListener(new MyMouseMotionListener());
 		this.addMouseWheelListener(new MyMouseListener());
@@ -42,12 +45,14 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 
 	private void drawGrid(Graphics g) {
 		g.setColor(this.gridLinesColor);
-		for (int k = 1; k < this.dimPixels; k++) {
+		for (int k = -this.dimPixels / this.unitSize; k < 2 * this.dimPixels
+				/ this.unitSize; k++) {
 			g.drawLine(k * this.unitSize, 0, k * this.unitSize,
 					this.getHeight());
 		}
 
-		for (int i = 1; i < this.dimPixels; i++) {
+		for (int i = -this.dimPixels / this.unitSize; i < 2 * this.dimPixels
+				/ this.unitSize; i++) {
 			g.drawLine(0, i * this.unitSize, this.getWidth(), i * this.unitSize);
 		}
 	}
@@ -56,7 +61,8 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		g.clearRect(0, 0, this.dimPixels, this.dimPixels);
+		g.clearRect(-this.dimPixels, -this.dimPixels, 2 * this.dimPixels,
+				2 * this.dimPixels);
 		drawGrid(g);
 
 		dialogue.drawStates(g, this.unitSize);
@@ -71,6 +77,7 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 	class MyMouseListener extends MouseAdapter {
 
 		private int scrollAmount = 0;
+		private double scale = 0.5;
 		public static final int SCROLL_THRESHOLD = 5;
 
 		public void mouseWheelMoved(MouseWheelEvent e) {
@@ -78,11 +85,15 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 			if (this.scrollAmount >= SCROLL_THRESHOLD) {
 				if (unitSize < 64) {
 					unitSize = unitSize * 2;
+					notifyZoom(0.5, e.getX(), e.getY());
+					this.scale = this.scale * 0.5;
 				}
 				this.scrollAmount = 0;
 			} else if (this.scrollAmount <= -SCROLL_THRESHOLD) {
 				if (unitSize > 4) {
 					unitSize = unitSize / 2;
+					notifyZoom(2.0, e.getX(), e.getY());
+					this.scale = 2.0 * this.scale;
 				}
 				this.scrollAmount = 0;
 
@@ -114,8 +125,8 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 							state.addIncomingAction(newAction);
 							newAction.setFinishState(state);
 							newAction.setPointEnd(state.getNearestBound(
-									newAction.getPointStart().getX(), newAction
-											.getPointStart().getY()));
+									newAction.getSelection().getCenterX(),
+									newAction.getSelection().getCenterY()));
 							dialogue.addAction(newAction);
 							newAction = null;
 							emptySelected();
@@ -172,20 +183,23 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 
 	}
 
+	private void notifyZoom(double ratio, int x, int y) {
+		for (DialogueState ds : this.dialogue.getStates()) {
+			ds.move((x - ds.getCenterX()) * ratio, (y - ds.getCenterY())
+					* ratio, this.unitSize);
+		}
+		for (ActionEdge action : this.dialogue.getActions()) {
+			double ax = action.getSelection().getCenterX(), ay = action
+					.getSelection().getCenterY();
+			action.setSelection((x - ax) * ratio + ax, (y - ay) * ratio + ay);
+		}
+	}
+
 	class MyMouseMotionListener extends MouseMotionAdapter {
 		public void mouseDragged(MouseEvent e) {
 
 			if (selectedAction != null && drawState == ACTION_RADIUS_CHANGE) {
-				Point tempStart = selectedAction.getPointStart(), tempEnd = selectedAction
-						.getPointEnd();
-				float distance = (float) Math
-						.sqrt(Math.pow(
-								((tempStart.getX() + tempEnd.getX()) / 2 - e
-										.getX()), 2)
-								+ Math.pow((tempStart.getY() + tempEnd.getY())
-										/ 2 - e.getY(), 2));
-				selectedAction.setRadius(distance);
-
+				selectedAction.setSelection(e.getX(), e.getY());
 			} else if (selectedState != null) {
 				selectedState.move(e.getX() - mouseX, e.getY() - mouseY,
 						unitSize);
@@ -198,10 +212,10 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 			if (drawState == CREATING_ACTION && newAction != null) {
 				Point temp = newAction.getStartState().getNearestBound(
 						e.getX(), e.getY());
-				newAction.setPointStart(temp);
 				Point temp2 = new Point();
 				temp2.setLocation((int) e.getX(), (int) e.getY());
-				newAction.setPointEnd(temp2);
+				newAction.setSelection(temp.getX(), temp2.getX(), temp.getY(),
+						temp2.getY());
 			}
 		}
 	}
@@ -225,4 +239,8 @@ public class DrawPanel extends JPanel implements InterfacePanel.ControlCallback 
 		this.drawState = CREATING_ACTION;
 	}
 
+	@Override
+	public Dimension getPreferredSize() {
+		return this.preferred;
+	}
 }

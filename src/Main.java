@@ -1,5 +1,7 @@
 import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -34,25 +36,51 @@ public class Main {
 		}
 
 		JPanel container = new JPanel();
-		container.setBounds(0, 0, 2 * DIM_PIXELS, DIM_PIXELS);
-		container.setLayout(new GridLayout(1, 2));
+
+		container.setBounds(0, 0, (int) (1.5 * DIM_PIXELS), DIM_PIXELS);
+		container.setLayout(new GridBagLayout());
 
 		display = new DrawPanel(DIM_PIXELS, new Dialogue(DIM_PIXELS / DIM,
 				DIM_PIXELS, new ArrayList<DialogueState>(),
-				new ArrayList<ActionEdge>()));
-		display.setBackground(Color.black);
+				new ArrayList<ActionEdge>()), new Dimension(DIM_PIXELS,
+				DIM_PIXELS));
+		display.setMaximumSize(new Dimension(java.awt.Toolkit
+				.getDefaultToolkit().getScreenSize()));
+		display.setMinimumSize(new Dimension(128, 128));
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 2;
+		c.gridheight = 1;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		c.ipadx = 0;
+		c.ipady = 0;
+		c.gridx = 0;
+		c.gridy = 0;
+		container.add(display, c);
 
-		menu = new InterfacePanel(DIM_PIXELS, DIM_PIXELS, display);
+		menu = new InterfacePanel(DIM_PIXELS / 2, DIM_PIXELS, display,
+				new Dimension(DIM_PIXELS / 2, DIM_PIXELS));
+		menu.setMaximumSize(new Dimension(DIM_PIXELS / 2,
+				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize()
+						.getHeight()));
+		menu.setMinimumSize(new Dimension(DIM_PIXELS / 2, DIM_PIXELS / 4));
 		menu.setBackground(Color.GRAY);
+		c.fill = GridBagConstraints.VERTICAL;
+		c.gridx = 2;
+		c.gridwidth = 1;
+		c.ipadx = 0;
+		c.ipady = 0;
+		c.gridheight = 1;
+		c.weightx = 0.0;
+		c.weighty = 1.0;
+		c.gridy = 0;
 
-		container.add(display);
-		container.add(menu);
+		container.add(menu, c);
 
 		window = new JFrame("GUI Test");
-		// glass.setBackground(new Color(0,0,0,0));
-		// glass.setOpaque(false);
 
-		window.setSize(2 * DIM_PIXELS, DIM_PIXELS);
+		window.setSize((int) (1.5 * DIM_PIXELS), DIM_PIXELS);
 		window.setLocation(100, 100);
 		window.setVisible(true);
 		window.setContentPane(container);

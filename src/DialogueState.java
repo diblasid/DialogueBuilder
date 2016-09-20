@@ -90,19 +90,6 @@ public class DialogueState {
 		return ellipse;
 	}
 
-	public void setEllipse(Ellipse2D ellipse) {
-		this.ellipse = ellipse;
-		for (ActionEdge action : incomingActions) {
-			Point temp = action.getPointStart();
-			action.setPointEnd(this.getNearestBound(temp.getX(), temp.getY()));
-		}
-
-		for (ActionEdge action : outgoingActions) {
-			Point temp = action.getPointEnd();
-			action.setPointStart(this.getNearestBound(temp.getX(), temp.getY()));
-		}
-	}
-
 	public void addIncomingAction(ActionEdge action) {
 		this.incomingActions.add(action);
 	}
@@ -136,26 +123,27 @@ public class DialogueState {
 				this.ellipse.getMinY() + y, ovalWidth * unitSize, ovalHeight
 						* unitSize);
 		for (ActionEdge action : this.incomingActions) {
-			Point tempStart = action.getPointStart();
 			DialogueState tempStartState = action.getStartState();
-			Point newEnd = this.getNearestBound(tempStart.getX(),
-					tempStart.getY());
+			Point newEnd = this.getNearestBound(action.getSelection()
+					.getCenterX(), action.getSelection().getCenterY());
 			action.setPointEnd(newEnd);
-			action.setPointStart(tempStartState.getNearestBound(newEnd.getX(),
-					newEnd.getY()));
+			action.setPointStart(tempStartState.getNearestBound(action
+					.getSelection().getCenterX(), action.getSelection()
+					.getCenterY()));
 		}
 
 		for (ActionEdge action : this.outgoingActions) {
-			Point tempEnd = action.getPointEnd();
 			DialogueState tempEndState = action.getFinishState();
-			Point newStart = this.getNearestBound(tempEnd.getX(),
-					tempEnd.getY());
+			Point newStart = this.getNearestBound(action.getSelection()
+					.getCenterX(), action.getSelection().getCenterY());
 			action.setPointStart(newStart);
 			if (tempEndState != null) {
-				action.setPointEnd(tempEndState.getNearestBound(
-						newStart.getX(), newStart.getY()));
+				action.setPointEnd(tempEndState.getNearestBound(action
+						.getSelection().getCenterX(), action.getSelection()
+						.getCenterY()));
 			}
 		}
+
 	}
 
 	public void draw(Graphics g, int unitSize) {

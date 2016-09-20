@@ -13,10 +13,10 @@ public class ActionEdge {
 
 	private static final Color SELECTION_COLOR = Color.green;
 
-	public static final double ARROW_ANGLE_RAD = Math.PI / 8, ANGLE_OFFSET = 0,
+	public static final double ARROW_ANGLE_RAD = Math.PI / 8,
 			ARROW_WIDTH = 0.1;
 
-	private static final int COLOR = 1, RADIUS = 2, SELECTION_RADIUS = 20;
+	private static final int COLOR = 1, SELECTION_RADIUS = 1;
 	public static final int ARROW_HEAD_SIZE = 1;
 
 	private Ellipse2D selection;
@@ -32,30 +32,10 @@ public class ActionEdge {
 		this.pointStart.setLocation(temp.getX(), temp.getY());
 		this.pointEnd.setLocation(temp.getX(), temp.getY());
 		this.selection = new Ellipse2D.Double();
-		this.selection.setFrameFromCenter(temp.getX(), temp.getY(), temp.getX() + SELECTION_RADIUS, temp.getY() + SELECTION_RADIUS);
+		double midX = (this.pointStart.getX() + this.pointEnd.getX()) / 2, midY = (this.pointStart
+				.getY() + this.pointEnd.getY()) / 2;
+		this.setSelection(midX, midY);
 		this.properties.put(COLOR, Color.BLACK);
-		this.properties.put(RADIUS, 0f);
-
-	}
-
-	public void refreshSelector() {
-		int tempX = (int) ((this.pointStart.getX() + this.pointEnd.getX()) / 2);
-		int tempY = (int) ((this.pointEnd.getY() + this.pointStart.getY()) / 2);
-		
-		double normal = this.getAngle() + Math.PI / 2;
-		
-		double controlX = tempX + this.properties.getFloatValue(RADIUS)
-		* Math.cos(normal);
-		double controlY = tempY - this.properties.getFloatValue(RADIUS)
-		* Math.sin(normal);
-		this.selection.setFrameFromCenter(controlX, controlY, controlX + SELECTION_RADIUS, controlY + SELECTION_RADIUS);
-
-	}
-
-	public void setRadius(float radius) {
-		this.properties.replace(RADIUS, radius);
-		this.refreshSelector();
-		
 	}
 
 	public double getAngle() {
@@ -69,7 +49,6 @@ public class ActionEdge {
 
 	public void setPointStart(Point pointStart) {
 		this.pointStart = pointStart;
-		this.refreshSelector();
 	}
 
 	public Point getPointEnd() {
@@ -78,7 +57,6 @@ public class ActionEdge {
 
 	public void setPointEnd(Point pointEnd) {
 		this.pointEnd = pointEnd;
-		this.refreshSelector();
 	}
 
 	public DialogueState getStartState() {
@@ -97,39 +75,60 @@ public class ActionEdge {
 		return this.selection;
 	}
 
+	public void setSelection(double midX, double midY) {
+		this.selection.setFrameFromCenter(midX, midY, midX + SELECTION_RADIUS,
+				midY + SELECTION_RADIUS);
+		this.setPointStart(this.startState.getNearestBound(midX, midY));
+		if (this.finishState != null) {
+			this.setPointEnd(this.finishState.getNearestBound(midX, midY));
+		}
+	}
+
+	public void setSelection(double x1, double x2, double y1, double y2) {
+		double midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+
+		this.selection.setFrameFromCenter(midX, midY, midX + SELECTION_RADIUS,
+				midY + SELECTION_RADIUS);
+		this.setPointStart(this.startState.getNearestBound(midX, midY));
+		if (this.finishState != null) {
+			this.setPointEnd(this.finishState.getNearestBound(midX, midY));
+		} else {
+			Point temp = new Point();
+			temp.setLocation(x2, y2);
+			this.setPointEnd(temp);
+		}
+	}
+
 	public void draw(Graphics g, int unitSize) {
 
 		Graphics2D g2d = (Graphics2D) g;
-
-
-
-
 		g2d.setColor((Color) this.properties.get(COLOR));
 		g2d.setStroke(new BasicStroke((int) ARROW_WIDTH * unitSize));
 		Point start = this.pointStart;
 		Point end = this.pointEnd;
 		DialogueState begin = this.startState;
 		DialogueState finish = this.finishState;
-
 		if (finish != null) {
 			QuadCurve2D q = new QuadCurve2D.Float();
-			Point newStart = begin.getPoint(this.getAngle() + ANGLE_OFFSET);
-			Point newEnd = finish.getPoint(this.getAngle() + Math.PI
-					- ANGLE_OFFSET);
-			double normal = this.getAngle() + Math.PI / 2;
-			float newX = (float) (start.getX() + end.getX()) / 2;
-			float newY = (float) (start.getY() + end.getY()) / 2;
-			double controlX = newX + 2*this.properties.getFloatValue(RADIUS)
-					* Math.cos(normal);
-			double controlY = newY - 2*this.properties.getFloatValue(RADIUS)
-					* Math.sin(normal);
+			Point newStart = begin.getNearestBound(this.selection.getCenterX(),
+					this.selection.getCenterY());
+			Point newEnd = finish.getNearestBound(this.selection.getCenterX(),
+					this.selection.getCenterY());
+			double midX = (newStart.getX() + newEnd.getX()) / 2, midY = (newStart
+					.getY() + newEnd.getY()) / 2;
+
 			q.setCurve((float) newStart.getX(), (float) newStart.getY(),
-					(float) (controlX), (float) (controlY),
+					(float) (2 * this.selection.getCenterX() - midX),
+					(float) (2 * this.selection.getCenterY() - midY),
 					(float) newEnd.getX(), (float) newEnd.getY());
 			g2d.draw(q);
-			this.drawCurvedArrowHead(g2d, unitSize, ANGLE_OFFSET, controlX,
-					controlY);
+			this.drawCurvedArrowHead(g2d, unitSize,
+					this.selection.getCenterX(), this.selection.getCenterY());
 			g2d.setColor(SELECTION_COLOR);
+			this.selection.setFrameFromCenter(this.selection.getCenterX(),
+					this.selection.getCenterY(), this.selection.getCenterX()
+							+ unitSize * SELECTION_RADIUS,
+					this.selection.getCenterY() + unitSize * SELECTION_RADIUS);
 			g2d.fill(this.selection);
 			return;
 
@@ -138,6 +137,10 @@ public class ActionEdge {
 				(int) end.getY());
 		this.drawArrowHead(g2d, unitSize);
 		g2d.setColor(SELECTION_COLOR);
+		this.selection.setFrameFromCenter(this.selection.getCenterX(),
+				this.selection.getCenterY(), this.selection.getCenterX()
+						+ unitSize * SELECTION_RADIUS,
+				this.selection.getCenterY() + unitSize * SELECTION_RADIUS);
 		g2d.fill(this.selection);
 
 	}
@@ -173,9 +176,8 @@ public class ActionEdge {
 	}
 
 	public void drawCurvedArrowHead(Graphics2D g2d, int unitSize,
-			double angleOffset, double controlX, double controlY) {
-		Point newPoint = this.finishState.getPoint(this.getAngle() + Math.PI
-				- angleOffset);
+			double controlX, double controlY) {
+		Point newPoint = this.finishState.getNearestBound(controlX, controlY);
 
 		double arrowLeftX = newPoint.getX()
 				+ ARROW_HEAD_SIZE
