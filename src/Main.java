@@ -1,8 +1,12 @@
+import graph.Graph;
+import graph.GraphController;
+import graph.GraphViewPanel;
+import graphInterface.InterfacePanel;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,7 +18,7 @@ public class Main {
 	/**
 	 * @param args
 	 */
-	public static DrawPanel display;
+	public static GraphViewPanel display;
 	public static InterfacePanel menu;
 	public static JFrame window;
 	public static final int DIM_PIXELS = 1024;
@@ -40,10 +44,8 @@ public class Main {
 		container.setBounds(0, 0, (int) (1.5 * DIM_PIXELS), DIM_PIXELS);
 		container.setLayout(new GridBagLayout());
 
-		display = new DrawPanel(DIM_PIXELS, new Dialogue(DIM_PIXELS / DIM,
-				DIM_PIXELS, new ArrayList<DialogueState>(),
-				new ArrayList<ActionEdge>()), new Dimension(DIM_PIXELS,
-				DIM_PIXELS));
+		GraphController controller = new GraphController(new Graph(DIM_PIXELS));
+		display = new GraphViewPanel(controller);
 		display.setMaximumSize(new Dimension(java.awt.Toolkit
 				.getDefaultToolkit().getScreenSize()));
 		display.setMinimumSize(new Dimension(128, 128));
@@ -59,7 +61,7 @@ public class Main {
 		c.gridy = 0;
 		container.add(display, c);
 
-		menu = new InterfacePanel(DIM_PIXELS / 2, DIM_PIXELS, display,
+		menu = new InterfacePanel(DIM_PIXELS / 2, DIM_PIXELS, controller,
 				new Dimension(DIM_PIXELS / 2, DIM_PIXELS));
 		menu.setMaximumSize(new Dimension(DIM_PIXELS / 2,
 				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize()
