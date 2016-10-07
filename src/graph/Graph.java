@@ -5,20 +5,30 @@ import graph.node.Node;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class Graph {
 
-	private int gridLinesWidth = 1;
-	private Color gridLinesColor = Color.LIGHT_GRAY;
+	private enum GraphEnum {
+		GRID_LINE_WIDTH, GRID_LINE_COLOR, ZOOM_X, ZOOM_Y, ZOOM_SCALE
+	}
+
+	private Properties properties;
 	private int dimPixels;
 	public static final int BASE_UNIT_SIZE = 32;
 	private List<Node> nodes;
-	private double zoomPointX = 0, zoomPointY = 0, zoomScale = 1.0;
 
 	public Graph(int dimPixels) {
 
 		this.dimPixels = dimPixels;
 		this.nodes = new ArrayList<Node>();
+		this.properties = new Properties();
+		properties.put(GraphEnum.GRID_LINE_WIDTH, 1);
+		properties.put(GraphEnum.GRID_LINE_COLOR, Color.LIGHT_GRAY);
+		properties.put(GraphEnum.ZOOM_X, 0.0);
+		properties.put(GraphEnum.ZOOM_Y, 0.0);
+		properties.put(GraphEnum.ZOOM_SCALE, 1.0);
+
 	}
 
 	public List<Node> getNodes() {
@@ -30,37 +40,37 @@ public class Graph {
 	}
 
 	public double getZoomPointX() {
-		return zoomPointX;
+		return (Double) properties.get(GraphEnum.ZOOM_X);
 	}
 
 	public double getZoomPointY() {
-		return zoomPointY;
+		return (Double) properties.get(GraphEnum.ZOOM_Y);
 	}
 
 	public double getZoomScale() {
-		return zoomScale;
+		return (Double) properties.get(GraphEnum.ZOOM_SCALE);
 	}
 
 	public void setZoom(double x, double y, double scale) {
-		this.zoomPointX = x;
-		this.zoomPointY = y;
-		this.zoomScale = scale;
+		properties.replace(GraphEnum.ZOOM_X, x);
+		properties.replace(GraphEnum.ZOOM_Y, y);
+		properties.replace(GraphEnum.ZOOM_SCALE, scale);
 	}
 
 	public int getGridLineWidth() {
-		return gridLinesWidth;
+		return (Integer) properties.get(GraphEnum.GRID_LINE_WIDTH);
 	}
 
 	public void setGridLineWidth(int gridLinesWidth) {
-		this.gridLinesWidth = gridLinesWidth;
+		properties.replace(GraphEnum.GRID_LINE_WIDTH, gridLinesWidth);
 	}
 
 	public Color getGridLinesColor() {
-		return gridLinesColor;
+		return (Color) properties.get(GraphEnum.GRID_LINE_COLOR);
 	}
 
 	public void setGridLinesColor(Color gridLinesColor) {
-		this.gridLinesColor = gridLinesColor;
+		properties.replace(GraphEnum.GRID_LINE_COLOR, gridLinesColor);
 	}
 
 	public int getDimPixels() {

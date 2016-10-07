@@ -22,7 +22,6 @@ public class Main {
 	public static InterfacePanel menu;
 	public static JFrame window;
 	public static final int DIM_PIXELS = 1024;
-	public static final int DIM = DIM_PIXELS / 4;
 
 	public static void main(String[] args) {
 

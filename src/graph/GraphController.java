@@ -92,13 +92,13 @@ public class GraphController extends NodeController implements
 	}
 
 	private void zoomOut(double x, double y) {
-		if (graph.getUnitSize() < 64) {
+		if (graph.getUnitSize() > 4) {
 			graph.setZoom(x, y, 0.5 * graph.getZoomScale());
 		}
 	}
 
 	private void zoomIn(double x, double y) {
-		if (graph.getUnitSize() > 4) {
+		if (graph.getUnitSize() < 64) {
 			graph.setZoom(x, y, 2 * graph.getZoomScale());
 		}
 	}
@@ -126,11 +126,14 @@ public class GraphController extends NodeController implements
 	// #### Mouse Input Listeners ##################
 
 	public void mouseDragged(MouseEvent e) {
+		long adjX = (long) ((e.getX() - graph.getZoomPointX())
+				/ graph.getZoomScale() + graph.getZoomPointX());
+		long adjY = (long) ((e.getY() - graph.getZoomPointY())
+				/ graph.getZoomScale() + graph.getZoomPointY());
 		if (selectedEdge != null && drawState == ACTION_RADIUS_CHANGE) {
 			Point control = new Point();
-			control.setLocation(2 * e.getX()
-					- selectedEdge.getMidPoint().getX(), 2 * e.getY()
-					- selectedEdge.getMidPoint().getY());
+			control.setLocation(2 * adjX - selectedEdge.getMidPoint().getX(), 2
+					* adjY - selectedEdge.getMidPoint().getY());
 			selectedEdge.setControlPoint(control);
 
 			Point start = selectedEdge.getStartNode().getNearestBound(
@@ -143,14 +146,18 @@ public class GraphController extends NodeController implements
 			selectedEdge.setEndPoint(end);
 
 		} else if (selectedNode != null) {
-			selectedNode.move(e.getX() - mouseX, e.getY() - mouseY,
-					graph.getUnitSize());
+			selectedNode
+					.move(adjX - mouseX, adjY - mouseY, graph.getUnitSize());
 		}
-		mouseX = e.getX();
-		mouseY = e.getY();
+		mouseX = adjX;
+		mouseY = adjY;
 	}
 
 	public void mouseMoved(MouseEvent e) {
+		mouseX = (long) ((e.getX() - graph.getZoomPointX())
+				/ graph.getZoomScale() + graph.getZoomPointX());
+		mouseY = (long) ((e.getY() - graph.getZoomPointY())
+				/ graph.getZoomScale() + graph.getZoomPointY());
 		if (drawState == CREATING_EDGE && newEdge != null) {
 			Point control = new Point();
 			control.setLocation(newEdge.getMidPoint().getX(), newEdge
@@ -161,7 +168,7 @@ public class GraphController extends NodeController implements
 					newEdge.getControlPoint().getY(), graph.getUnitSize());
 			newEdge.setStartPoint(start);
 			Point end = new Point();
-			end.setLocation(e.getX(), e.getY());
+			end.setLocation(mouseX, mouseY);
 			newEdge.setEndPoint(end);
 
 		}
@@ -182,11 +189,13 @@ public class GraphController extends NodeController implements
 	}
 
 	public void mousePressed(MouseEvent e) {
-		mouseX = e.getX();
-		mouseY = e.getY();
+		mouseX = (long) ((e.getX() - graph.getZoomPointX())
+				/ graph.getZoomScale() + graph.getZoomPointX());
+		mouseY = (long) ((e.getY() - graph.getZoomPointY())
+				/ graph.getZoomScale() + graph.getZoomPointY());
 		for (Node node : graph.getNodes()) {
 			for (Edge edge : node.getOutgoingEdges()) {
-				if (Point.distance(e.getX(), e.getY(), edge.getSelectorPoint()
+				if (Point.distance(mouseX, mouseY, edge.getSelectorPoint()
 						.getX(), edge.getSelectorPoint().getY()) < EdgeController.SELECTION_RADIUS
 						* graph.getUnitSize()
 						&& drawState == DEFAULT_STATE) {
@@ -200,7 +209,9 @@ public class GraphController extends NodeController implements
 			Ellipse2D ellipse = new Ellipse2D.Double(node.getMinX(),
 					node.getMinY(), Node.getNodeWidth() * graph.getUnitSize(),
 					Node.getNodeHeight() * graph.getUnitSize());
-			if (ellipse.contains(e.getX(), e.getY())) {
+
+			if (ellipse.contains(mouseX, mouseY)) {
+
 				if (drawState == CREATING_EDGE) {
 					if (newEdge != null
 							&& !node.getIncomingEdges().contains(newEdge)) {
@@ -251,8 +262,6 @@ public class GraphController extends NodeController implements
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		mouseX = e.getX();
-		mouseY = e.getY();
 		this.scrollAmount += e.getWheelRotation();
 		if (this.scrollAmount >= SCROLL_THRESHOLD) {
 			zoomOut(e.getX(), e.getY());
