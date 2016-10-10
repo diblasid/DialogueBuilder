@@ -2,21 +2,26 @@ package graph.graphInterface;
 
 import graph.Graph.GraphEnum;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.NumberFormat;
+import java.util.Vector;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 
 public class InterfacePanel extends JPanel {
 
@@ -75,22 +80,24 @@ public class InterfacePanel extends JPanel {
 		buttons.add(createActionButton, c);
 
 		this.add(buttons);
+		DefaultTableModel model = new DefaultTableModel();
 
-		JTable properties = new JTable(GraphEnum.values().length, 2);
+		Vector<Vector<Object>> props = new Vector<Vector<Object>>();
 		for (GraphEnum key : GraphEnum.values()) {
-			JPanel property = new JPanel();
-			property.setLayout(new GridLayout(1, 2));
-			JLabel name = new JLabel(key.getName());
-			name.setEnabled(false);
-			JFormattedTextField value = new JFormattedTextField(
-					NumberFormat.getNumberInstance());
-			value.setText(key.getValue().toString());
-			value.setEditable(true);
-			property.add(name);
-			property.add(value);
-			properties.add(property);
+			Vector<Object> b = new Vector<Object>();
+			b.add(key.getName());
+			b.add(key.getValue());
+			props.add(b);
 		}
+		Vector<String> header = new Vector<String>();
+		header.add("Property");
+		header.add("Value");
+
+		model.setDataVector(props, header);
+
+		JTable properties = new JTable(model);
 		properties.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		properties.setCellEditor(new PropertyTableCellEditor());
 
 		properties.setSize(width, height / 2);
 		JScrollPane scroller = new JScrollPane(properties);
@@ -102,6 +109,38 @@ public class InterfacePanel extends JPanel {
 	@Override
 	public Dimension getPreferredSize() {
 		return this.preferred;
+	}
+
+	class PropertyTableCellEditor extends AbstractCellEditor implements
+			TableCellEditor {
+
+		JComponent component = new JTextField(), name = new JLabel();
+		int row = 0, column = 0;
+
+		public Object getCellEditorValue() {
+			if (this.column == 1) {
+				return ((JTextField) component).getText();
+			} else {
+				return null;
+			}
+		}
+
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			if (column == 1) {
+				this.row = row;
+				this.column = column;
+				((JTextField) component).setText(((GraphEnum) value).getValue()
+						.toString());
+				return component;
+			} else {
+				((JLabel) name).setText(((GraphEnum) value).getName()
+						.toString());
+				((JLabel) name).setEnabled(false);
+				return name;
+			}
+		}
+
 	}
 
 }
