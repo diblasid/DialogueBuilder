@@ -1,10 +1,11 @@
 package graph;
 
+import graph.Graph.GraphEnum;
 import graph.edge.Edge;
 import graph.edge.EdgeController;
+import graph.graphInterface.InterfacePanel;
 import graph.node.Node;
 import graph.node.NodeController;
-import graphInterface.InterfacePanel;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -28,11 +29,11 @@ public class GraphController extends NodeController implements
 	public static Color selectedNodeColor = new Color(100, 100, 200),
 			unselectedNodeColor = new Color(150, 150, 240),
 			stateTextColor = Color.WHITE;
-
 	private Graph graph;
 	private Node selectedNode;
 	private Edge newEdge, selectedEdge;
 	private long mouseX = 0, mouseY = 0;
+	private double dx = 0, dy = 0;
 	public static final int DEFAULT_STATE = 0, CREATING_EDGE = 1,
 			ACTION_RADIUS_CHANGE = 2;
 
@@ -70,7 +71,7 @@ public class GraphController extends NodeController implements
 
 		g2.translate(graph.getZoomPointX(), graph.getZoomPointY());
 		g2.scale(graph.getZoomScale(), graph.getZoomScale());
-		g2.translate(-graph.getZoomPointX(), -graph.getZoomPointY());
+		g2.translate(-graph.getZoomPointX() + dx, -graph.getZoomPointY() + dy);
 		drawGrid(g2);
 
 		for (Node node : graph.getNodes()) {
@@ -92,14 +93,20 @@ public class GraphController extends NodeController implements
 	}
 
 	private void zoomOut(double x, double y) {
-		if (graph.getUnitSize() > 4) {
+		if (graph.getZoomScale() > Math.pow(0.5, 3)) {
+			dx += -(x - graph.getZoomPointX()) / graph.getZoomScale();
+			dy += -(y - graph.getZoomPointY()) / graph.getZoomScale();
 			graph.setZoom(x, y, 0.5 * graph.getZoomScale());
+
 		}
 	}
 
 	private void zoomIn(double x, double y) {
-		if (graph.getUnitSize() < 64) {
+		if (graph.getZoomScale() < Math.pow(2, 2)) {
+			dx += -(x - graph.getZoomPointX()) / graph.getZoomScale();
+			dy += -(y - graph.getZoomPointY()) / graph.getZoomScale();
 			graph.setZoom(x, y, 2 * graph.getZoomScale());
+
 		}
 	}
 
@@ -119,6 +126,29 @@ public class GraphController extends NodeController implements
 	public void newEdgeClicked() {
 		emptySelected();
 		this.drawState = CREATING_EDGE;
+	}
+
+	public void propertyChanged(GraphEnum e, String value) {
+		switch (e) {
+		case GRID_LINE_WIDTH:
+			graph.setGridLineWidth(Integer.parseInt(value));
+			break;
+		case GRID_LINE_COLOR:
+			graph.setGridLinesColor(Color.decode(value));
+			break;
+		case ZOOM_X:
+			graph.setZoom(Double.parseDouble(value), graph.getZoomPointY(),
+					graph.getZoomScale());
+			break;
+		case ZOOM_Y:
+			graph.setZoom(graph.getZoomPointX(), Double.parseDouble(value),
+					graph.getZoomScale());
+			break;
+		case ZOOM_SCALE:
+			graph.setZoom(graph.getZoomPointX(), graph.getZoomPointY(),
+					Double.parseDouble(value));
+			break;
+		}
 	}
 
 	// #############################################
@@ -148,6 +178,9 @@ public class GraphController extends NodeController implements
 		} else if (selectedNode != null) {
 			selectedNode
 					.move(adjX - mouseX, adjY - mouseY, graph.getUnitSize());
+		} else {
+			dx += adjX - mouseX;
+			dy += adjY - mouseY;
 		}
 		mouseX = adjX;
 		mouseY = adjY;
@@ -262,6 +295,11 @@ public class GraphController extends NodeController implements
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
+
+		mouseX = (long) ((e.getX() - graph.getZoomPointX())
+				/ graph.getZoomScale() + graph.getZoomPointX());
+		mouseY = (long) ((e.getY() - graph.getZoomPointY())
+				/ graph.getZoomScale() + graph.getZoomPointY());
 		this.scrollAmount += e.getWheelRotation();
 		if (this.scrollAmount >= SCROLL_THRESHOLD) {
 			zoomOut(e.getX(), e.getY());
@@ -272,4 +310,5 @@ public class GraphController extends NodeController implements
 
 		}
 	}
+
 }

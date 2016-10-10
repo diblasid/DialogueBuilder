@@ -15,6 +15,7 @@ public class GraphViewPanel extends JPanel {
 		this.addMouseListener(controller);
 		this.addMouseMotionListener(controller);
 		this.addMouseWheelListener(controller);
+
 	}
 
 	@Override

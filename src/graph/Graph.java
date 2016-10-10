@@ -5,15 +5,47 @@ import graph.node.Node;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class Graph {
 
-	private enum GraphEnum {
-		GRID_LINE_WIDTH, GRID_LINE_COLOR, ZOOM_X, ZOOM_Y, ZOOM_SCALE
+	public enum EditType {
+		DOUBLE, INTEGER, COLOR, STRING;
 	}
 
-	private Properties properties;
+	public enum GraphEnum {
+
+		GRID_LINE_WIDTH("Grid Line Width", 1, EditType.INTEGER), GRID_LINE_COLOR(
+				"Grid Line Color", Color.LIGHT_GRAY, EditType.COLOR), ZOOM_X(
+				"Zoom X", 0.0, EditType.DOUBLE), ZOOM_Y("Zoom Y", 0.0,
+				EditType.DOUBLE), ZOOM_SCALE("Zoom Scale", 1.0, EditType.DOUBLE);
+		private String name;
+		private Object value;
+		private EditType type;
+
+		private GraphEnum(String name, Object value, EditType type) {
+			this.name = name;
+			this.value = value;
+			this.type = type;
+		}
+
+		private void setValue(Object value) {
+
+			this.value = value;
+		}
+
+		public Object getValue() {
+			return this.value;
+		}
+
+		public String getName() {
+			return this.name;
+		}
+
+		public EditType getType() {
+			return this.type;
+		}
+	}
+
 	private int dimPixels;
 	public static final int BASE_UNIT_SIZE = 32;
 	private List<Node> nodes;
@@ -22,12 +54,6 @@ public class Graph {
 
 		this.dimPixels = dimPixels;
 		this.nodes = new ArrayList<Node>();
-		this.properties = new Properties();
-		properties.put(GraphEnum.GRID_LINE_WIDTH, 1);
-		properties.put(GraphEnum.GRID_LINE_COLOR, Color.LIGHT_GRAY);
-		properties.put(GraphEnum.ZOOM_X, 0.0);
-		properties.put(GraphEnum.ZOOM_Y, 0.0);
-		properties.put(GraphEnum.ZOOM_SCALE, 1.0);
 
 	}
 
@@ -40,37 +66,37 @@ public class Graph {
 	}
 
 	public double getZoomPointX() {
-		return (Double) properties.get(GraphEnum.ZOOM_X);
+		return (Double) GraphEnum.ZOOM_X.getValue();
 	}
 
 	public double getZoomPointY() {
-		return (Double) properties.get(GraphEnum.ZOOM_Y);
+		return (Double) GraphEnum.ZOOM_Y.getValue();
 	}
 
 	public double getZoomScale() {
-		return (Double) properties.get(GraphEnum.ZOOM_SCALE);
+		return (Double) GraphEnum.ZOOM_SCALE.getValue();
 	}
 
 	public void setZoom(double x, double y, double scale) {
-		properties.replace(GraphEnum.ZOOM_X, x);
-		properties.replace(GraphEnum.ZOOM_Y, y);
-		properties.replace(GraphEnum.ZOOM_SCALE, scale);
+		GraphEnum.ZOOM_X.setValue(x);
+		GraphEnum.ZOOM_Y.setValue(y);
+		GraphEnum.ZOOM_SCALE.setValue(scale);
 	}
 
 	public int getGridLineWidth() {
-		return (Integer) properties.get(GraphEnum.GRID_LINE_WIDTH);
+		return (Integer) GraphEnum.GRID_LINE_WIDTH.getValue();
 	}
 
 	public void setGridLineWidth(int gridLinesWidth) {
-		properties.replace(GraphEnum.GRID_LINE_WIDTH, gridLinesWidth);
+		GraphEnum.GRID_LINE_WIDTH.setValue(gridLinesWidth);
 	}
 
 	public Color getGridLinesColor() {
-		return (Color) properties.get(GraphEnum.GRID_LINE_COLOR);
+		return (Color) GraphEnum.GRID_LINE_COLOR.getValue();
 	}
 
 	public void setGridLinesColor(Color gridLinesColor) {
-		properties.replace(GraphEnum.GRID_LINE_COLOR, gridLinesColor);
+		GraphEnum.GRID_LINE_COLOR.setValue(gridLinesColor);
 	}
 
 	public int getDimPixels() {

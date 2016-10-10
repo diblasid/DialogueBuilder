@@ -1,7 +1,7 @@
 import graph.Graph;
 import graph.GraphController;
 import graph.GraphViewPanel;
-import graphInterface.InterfacePanel;
+import graph.graphInterface.InterfacePanel;
 
 import java.awt.Color;
 import java.awt.Dimension;
