@@ -2,6 +2,7 @@ package graph.graphInterface;
 
 import graph.Graph.GraphEnum;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -9,9 +10,11 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EventObject;
 import java.util.Vector;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -20,8 +23,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 public class InterfacePanel extends JPanel {
 
@@ -80,24 +87,13 @@ public class InterfacePanel extends JPanel {
 		buttons.add(createActionButton, c);
 
 		this.add(buttons);
-		DefaultTableModel model = new DefaultTableModel();
-
-		Vector<Vector<Object>> props = new Vector<Vector<Object>>();
-		for (GraphEnum key : GraphEnum.values()) {
-			Vector<Object> b = new Vector<Object>();
-			b.add(key.getName());
-			b.add(key.getValue());
-			props.add(b);
-		}
-		Vector<String> header = new Vector<String>();
-		header.add("Property");
-		header.add("Value");
-
-		model.setDataVector(props, header);
+		TableModel model = new PropertyTableModel();
+		PropertyTableCellRenderer renderer = new PropertyTableCellRenderer();
 
 		JTable properties = new JTable(model);
 		properties.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		properties.setCellEditor(new PropertyTableCellEditor());
+		properties.setDefaultRenderer(GraphEnum.class, renderer);
 
 		properties.setSize(width, height / 2);
 		JScrollPane scroller = new JScrollPane(properties);
@@ -116,12 +112,22 @@ public class InterfacePanel extends JPanel {
 
 		JComponent component = new JTextField(), name = new JLabel();
 		int row = 0, column = 0;
+		
+		public PropertyTableCellEditor(){
+			ActionListener actionListener = new ActionListener(){
+
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					
+				}		
+			};
+		}
 
 		public Object getCellEditorValue() {
 			if (this.column == 1) {
 				return ((JTextField) component).getText();
 			} else {
-				return null;
+				return ((JLabel) name).getText();
 			}
 		}
 
@@ -140,7 +146,76 @@ public class InterfacePanel extends JPanel {
 				return name;
 			}
 		}
+		
+		@Override
+		public boolean isCellEditable(EventObject e){
+				return true;
+		}
 
+	}
+	
+	class PropertyTableCellRenderer implements TableCellRenderer {
+		  DefaultListCellRenderer listRenderer = new DefaultListCellRenderer();
+
+		  DefaultTableCellRenderer tableRenderer = new DefaultTableCellRenderer();
+
+		  private void configureRenderer(JLabel renderer, Object value) {
+		      renderer.setBackground((Color)value);
+		  }
+
+
+		  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+		      boolean hasFocus, int row, int column) {
+		    tableRenderer = (DefaultTableCellRenderer) tableRenderer.getTableCellRendererComponent(table,
+		        value, isSelected, hasFocus, row, column);
+		    configureRenderer(tableRenderer, value);
+		    return tableRenderer;
+		  }
+		}
+	
+	class PropertyTableModel extends AbstractTableModel {
+		private Vector<Vector<Object>> props;
+		Vector<String> header;
+		public PropertyTableModel(){
+			props = new Vector<Vector<Object>>();
+			for (GraphEnum key : GraphEnum.values()) {
+				Vector<Object> b = new Vector<Object>();
+				b.add(key.getName());
+				b.add(key.getValue());
+				props.add(b);
+			}
+			header = new Vector<String>();
+			header.add("Property");
+			header.add("Value");
+		}
+		  
+		  public int getColumnCount() {
+		    return header.size();
+		  }
+
+		  public String getColumnName(int column) {
+		    return header.elementAt(column);
+		  }
+
+		  public int getRowCount() {
+		    return props.size();
+		  }
+
+		  public Object getValueAt(int row, int column) {
+		    return props.elementAt(row).elementAt(column);
+		  }
+
+		  public Class getColumnClass(int column) {
+		    return (props.elementAt(0).elementAt(column).getClass());
+		  }
+
+		  public void setValueAt(Object value, int row, int column) {
+		    props.elementAt(row).set(column, value);
+		  }
+
+		  public boolean isCellEditable(int row, int column) {
+		    return (column != 0);
+		  }
 	}
 
 }
