@@ -1,12 +1,5 @@
 package graph;
 
-import graph.edge.Edge;
-import graph.edge.EdgeController;
-import graph.graphInterface.InterfacePanel;
-import graph.graphInterface.PropertyCellModel;
-import graph.node.Node;
-import graph.node.NodeController;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -23,21 +16,25 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 
-public class GraphController extends NodeController implements
-		InterfacePanel.ControlCallback, MouseMotionListener, MouseListener,
-		MouseWheelListener {
+import graph.edge.Edge;
+import graph.edge.EdgeController;
+import graph.graphInterface.InterfacePanel;
+import graph.graphInterface.PropertyCellModel;
+import graph.node.Node;
+import graph.node.NodeController;
+
+public class GraphController extends NodeController
+		implements InterfacePanel.ControlCallback, MouseMotionListener, MouseListener, MouseWheelListener {
 
 	private enum DrawState {
 		DEFAULT_STATE, CREATING_EDGE, ACTION_RADIUS_CHANGE, TRANSLATE, NODE_EDIT;
 	}
 
-	public static Color selectedNodeColor = new Color(100, 100, 200),
-			unselectedNodeColor = new Color(150, 150, 240),
+	public static Color selectedNodeColor = new Color(100, 100, 200), unselectedNodeColor = new Color(150, 150, 240),
 			stateTextColor = Color.WHITE;
 	private GraphInterfaceEditor graph;
 	private Node selectedNode;
 	private Edge newEdge, selectedEdge;
-	private PropertyCellModel model;
 	private double mouseX = 0, mouseY = 0;
 	private double pDragX = 0, pDragY = 0;
 	private double dx = 0, dy = 0;
@@ -48,31 +45,24 @@ public class GraphController extends NodeController implements
 
 	public GraphController(GraphInterfaceEditor graph) {
 		this.graph = graph;
-		this.model = new PropertyCellModel(graph);
 	}
 
 	private void drawGrid(Graphics2D g) {
 		g.setColor(graph.getGridLinesColor());
 		g.setStroke(new BasicStroke(graph.getGridLineWidth()));
-		int adjustedDimension = (int) (graph.getDimPixels() / (graph
-				.getZoomScale()));
-		for (int k = -adjustedDimension / graph.getUnitSize(); k < 2
-				* adjustedDimension / graph.getUnitSize(); k++) {
-			g.drawLine(k * graph.getUnitSize(), -adjustedDimension,
-					k * graph.getUnitSize(), 2 * adjustedDimension);
+		int adjustedDimension = (int) (graph.getDimPixels() / (graph.getZoomScale()));
+		for (int k = -adjustedDimension / graph.getUnitSize(); k < 2 * adjustedDimension / graph.getUnitSize(); k++) {
+			g.drawLine(k * graph.getUnitSize(), -adjustedDimension, k * graph.getUnitSize(), 2 * adjustedDimension);
 		}
 
-		for (int i = -adjustedDimension / graph.getUnitSize(); i < 2
-				* adjustedDimension / graph.getUnitSize(); i++) {
-			g.drawLine(-adjustedDimension, i * graph.getUnitSize(),
-					2 * adjustedDimension, i * graph.getUnitSize());
+		for (int i = -adjustedDimension / graph.getUnitSize(); i < 2 * adjustedDimension / graph.getUnitSize(); i++) {
+			g.drawLine(-adjustedDimension, i * graph.getUnitSize(), 2 * adjustedDimension, i * graph.getUnitSize());
 		}
 	}
 
 	void draw(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
-		g2.clearRect(-graph.getDimPixels(), -graph.getDimPixels(),
-				2 * graph.getDimPixels(), 2 * graph.getDimPixels());
+		g2.clearRect(-graph.getDimPixels(), -graph.getDimPixels(), 2 * graph.getDimPixels(), 2 * graph.getDimPixels());
 
 		g2.translate(graph.getZoomPointX() + dx, graph.getZoomPointY() + dy);
 		g2.scale(graph.getZoomScale(), graph.getZoomScale());
@@ -94,8 +84,8 @@ public class GraphController extends NodeController implements
 		if (selectedEdge != null) {
 			selectedEdge = null;
 		}
-		
-		graph.onDeselected();;
+
+		graph.onDeselected();
 
 	}
 
@@ -114,12 +104,10 @@ public class GraphController extends NodeController implements
 	// #### From InterfacePanel.ControlCallback #####
 	public void newNodeClicked() {
 		JFrame frame = new JFrame("Name Your New State");
-		String name = (String) JOptionPane.showInputDialog(frame,
-				"What would you like to name the new state?", "New State",
-				JOptionPane.QUESTION_MESSAGE);
+		String name = (String) JOptionPane.showInputDialog(frame, "What would you like to name the new state?",
+				"New State", JOptionPane.QUESTION_MESSAGE);
 		if (name != null) {
-			Node temp = new Node(name, unselectedNodeColor, graph
-					.getDimPixels() / 2, graph.getDimPixels() / 2);
+			Node temp = new Node(name, unselectedNodeColor, graph.getDimPixels() / 2, graph.getDimPixels() / 2);
 			graph.addNode(temp);
 			graph.onSelected(temp);
 			this.drawState = DrawState.DEFAULT_STATE;
@@ -149,24 +137,19 @@ public class GraphController extends NodeController implements
 	// #### Mouse Input Listeners ##################
 
 	public void mouseDragged(MouseEvent e) {
-		double dragX = (((double) e.getX() - graph.getZoomPointX())
-				/ graph.getZoomScale() + graph.getZoomPointX());
-		double dragY = (((double) e.getY() - graph.getZoomPointY())
-				/ graph.getZoomScale() + graph.getZoomPointY());
+		double dragX = (((double) e.getX() - graph.getZoomPointX()) / graph.getZoomScale() + graph.getZoomPointX());
+		double dragY = (((double) e.getY() - graph.getZoomPointY()) / graph.getZoomScale() + graph.getZoomPointY());
 		double pX = dragX - dx;
 		double pY = dragY - dy;
 		if (selectedEdge != null && drawState == DrawState.ACTION_RADIUS_CHANGE) {
 			Point control = new Point();
-			control.setLocation(2 * pX - selectedEdge.getMidPoint().getX(), 2
-					* pY - selectedEdge.getMidPoint().getY());
+			control.setLocation(2 * pX - selectedEdge.getMidPoint().getX(), 2 * pY - selectedEdge.getMidPoint().getY());
 			selectedEdge.setControlPoint(control);
 
-			Point start = selectedEdge.getStartNode().getNearestBound(
-					selectedEdge.getControlPoint().getX(),
+			Point start = selectedEdge.getStartNode().getNearestBound(selectedEdge.getControlPoint().getX(),
 					selectedEdge.getControlPoint().getY(), graph.getUnitSize());
 			selectedEdge.setStartPoint(start);
-			Point end = selectedEdge.getEndNode().getNearestBound(
-					selectedEdge.getControlPoint().getX(),
+			Point end = selectedEdge.getEndNode().getNearestBound(selectedEdge.getControlPoint().getX(),
 					selectedEdge.getControlPoint().getY(), graph.getUnitSize());
 			selectedEdge.setEndPoint(end);
 
@@ -184,17 +167,13 @@ public class GraphController extends NodeController implements
 	}
 
 	public void mouseMoved(MouseEvent e) {
-		mouseX = ((e.getX() - graph.getZoomPointX()) / graph.getZoomScale()
-				+ graph.getZoomPointX() - dx);
-		mouseY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale()
-				+ graph.getZoomPointY() - dy);
+		mouseX = ((e.getX() - graph.getZoomPointX()) / graph.getZoomScale() + graph.getZoomPointX() - dx);
+		mouseY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale() + graph.getZoomPointY() - dy);
 		if (drawState == DrawState.CREATING_EDGE && newEdge != null) {
 			Point control = new Point();
-			control.setLocation(newEdge.getMidPoint().getX(), newEdge
-					.getMidPoint().getY());
+			control.setLocation(newEdge.getMidPoint().getX(), newEdge.getMidPoint().getY());
 			newEdge.setControlPoint(control);
-			Point start = selectedNode.getNearestBound(newEdge
-					.getControlPoint().getX(),
+			Point start = selectedNode.getNearestBound(newEdge.getControlPoint().getX(),
 					newEdge.getControlPoint().getY(), graph.getUnitSize());
 			newEdge.setStartPoint(start);
 			Point end = new Point();
@@ -218,19 +197,16 @@ public class GraphController extends NodeController implements
 	}
 
 	public void mousePressed(MouseEvent e) {
-		pDragX = ((e.getX() - graph.getZoomPointX()) / graph.getZoomScale() + graph
-				.getZoomPointX());
-		pDragY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale() + graph
-				.getZoomPointY());
+		pDragX = ((e.getX() - graph.getZoomPointX()) / graph.getZoomScale() + graph.getZoomPointX());
+		pDragY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale() + graph.getZoomPointY());
 
 		mouseX = pDragX - dx;
 		mouseY = pDragY - dy;
 
 		for (Node node : graph.getNodes()) {
 			for (Edge edge : node.getOutgoingEdges()) {
-				if (Point.distance(mouseX, mouseY, edge.getSelectorPoint()
-						.getX(), edge.getSelectorPoint().getY()) < EdgeController.SELECTION_RADIUS
-						* graph.getUnitSize()
+				if (Point.distance(mouseX, mouseY, edge.getSelectorPoint().getX(),
+						edge.getSelectorPoint().getY()) < EdgeController.SELECTION_RADIUS * graph.getUnitSize()
 						&& drawState == DrawState.DEFAULT_STATE) {
 					drawState = DrawState.ACTION_RADIUS_CHANGE;
 					selectedEdge = edge;
@@ -239,19 +215,16 @@ public class GraphController extends NodeController implements
 			}
 		}
 		for (Node node : graph.getNodes()) {
-			Ellipse2D ellipse = new Ellipse2D.Double(node.getMinX(),
-					node.getMinY(), Node.getNodeWidth() * graph.getUnitSize(),
-					Node.getNodeHeight() * graph.getUnitSize());
+			Ellipse2D ellipse = new Ellipse2D.Double(node.getMinX(), node.getMinY(),
+					Node.getNodeWidth() * graph.getUnitSize(), Node.getNodeHeight() * graph.getUnitSize());
 
 			if (ellipse.contains(mouseX, mouseY)) {
 
 				if (drawState == DrawState.CREATING_EDGE) {
-					if (newEdge != null
-							&& !node.getIncomingEdges().contains(newEdge)) {
+					if (newEdge != null && !node.getIncomingEdges().contains(newEdge)) {
 						node.addIncomingEdge(newEdge);
-						newEdge.setEndPoint(node.getNearestBound(newEdge
-								.getControlPoint().getX(), newEdge
-								.getControlPoint().getY(), graph.getUnitSize()));
+						newEdge.setEndPoint(node.getNearestBound(newEdge.getControlPoint().getX(),
+								newEdge.getControlPoint().getY(), graph.getUnitSize()));
 						newEdge = null;
 						emptySelected();
 						drawState = DrawState.DEFAULT_STATE;
@@ -260,8 +233,7 @@ public class GraphController extends NodeController implements
 						emptySelected();
 						selectedNode = node;
 						Point tempStart = new Point();
-						tempStart.setLocation(ellipse.getCenterX(),
-								ellipse.getCenterY());
+						tempStart.setLocation(ellipse.getCenterX(), ellipse.getCenterY());
 						newEdge = new Edge(tempStart);
 						selectedNode.addOutgoingEdge(newEdge);
 						selectedNode.setColor(selectedNodeColor);
@@ -300,10 +272,8 @@ public class GraphController extends NodeController implements
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
 
-		mouseX = ((e.getX() - graph.getZoomPointX()) / graph.getZoomScale()
-				+ graph.getZoomPointX() - dx);
-		mouseY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale()
-				+ graph.getZoomPointY() - dy);
+		mouseX = ((e.getX() - graph.getZoomPointX()) / graph.getZoomScale() + graph.getZoomPointX() - dx);
+		mouseY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale() + graph.getZoomPointY() - dy);
 		this.scrollAmount += e.getWheelRotation();
 		if (this.scrollAmount >= SCROLL_THRESHOLD) {
 			zoomOut(e.getX(), e.getY());

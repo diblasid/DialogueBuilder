@@ -1,7 +1,5 @@
 package graph.graphInterface;
 
-import graphwindow.WindowController.DataChangeListener;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -33,7 +31,6 @@ public class InterfacePanel extends JPanel {
 
 	private Dimension preferred;
 
-	private DataChangeListener changeListener;
 	private JTable properties;
 
 	public interface ControlCallback {
@@ -48,8 +45,7 @@ public class InterfacePanel extends JPanel {
 
 	private ControlCallback mListener;
 
-	public InterfacePanel(int width, int height, ControlCallback listener,
-			Dimension preferred) {
+	public InterfacePanel(int width, int height, ControlCallback listener, Dimension preferred) {
 		this.setSize(width, height);
 		this.mListener = listener;
 		this.preferred = preferred;
@@ -94,8 +90,7 @@ public class InterfacePanel extends JPanel {
 		properties.setModel(this.mListener.getCellModel());
 		properties.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		properties.setCellEditor(new PropertyTableCellEditor());
-		properties.setDefaultRenderer(Object.class, new PropertyCellRenderer(
-				true));
+		properties.setDefaultRenderer(Object.class, new PropertyCellRenderer(true));
 
 		properties.setSize(width, height / 2);
 		JScrollPane scroller = new JScrollPane(properties);
@@ -108,8 +103,7 @@ public class InterfacePanel extends JPanel {
 		return this.preferred;
 	}
 
-	class PropertyTableCellEditor extends AbstractCellEditor implements
-			TableCellEditor, ActionListener {
+	class PropertyTableCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
 		/**
 		 * 
@@ -131,8 +125,8 @@ public class InterfacePanel extends JPanel {
 			}
 		}
 
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 			if (column == 1) {
 				this.row = row;
 				this.column = column;
@@ -170,9 +164,8 @@ public class InterfacePanel extends JPanel {
 			setOpaque(true);
 		}
 
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
 
 			if (isBordered) {
 				if (isSelected) {
@@ -188,12 +181,10 @@ public class InterfacePanel extends JPanel {
 				String val;
 				if (value instanceof Integer) {
 					val = Integer.toString((Integer) value);
-					this.value = new JFormattedTextField(
-							NumberFormat.INTEGER_FIELD);
+					this.value = new JFormattedTextField(NumberFormat.INTEGER_FIELD);
 				} else if (value instanceof Double) {
 					val = Double.toString((Double) value);
-					this.value = new JFormattedTextField(
-							NumberFormat.FRACTION_FIELD);
+					this.value = new JFormattedTextField(NumberFormat.FRACTION_FIELD);
 				} else if (value instanceof Color) {
 					Color color = ((Color) value);
 					val = Integer.toString(color.getRGB());

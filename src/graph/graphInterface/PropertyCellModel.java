@@ -1,13 +1,11 @@
 package graph.graphInterface;
 
-import graph.Graph.GraphEnum;
-import graph.Selectable;
-
 import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import graph.Selectable;
 import property.PropertyEnum;
 
 public class PropertyCellModel extends AbstractTableModel {
@@ -33,8 +31,8 @@ public class PropertyCellModel extends AbstractTableModel {
 		header.add("Value");
 
 	}
-	
-	public void setSelected(Selectable selected){
+
+	public void setSelected(Selectable selected) {
 		this.selected = selected;
 		props = new Vector<Vector<Object>>();
 		for (Entry<Object, Object> key : selected.getProperties().entrySet()) {
@@ -46,7 +44,7 @@ public class PropertyCellModel extends AbstractTableModel {
 		header = new Vector<String>();
 		header.add("Property");
 		header.add("Value");
-		
+
 		this.fireTableDataChanged();
 	}
 
@@ -83,12 +81,10 @@ public class PropertyCellModel extends AbstractTableModel {
 			PropertyEnum temp = (PropertyEnum) props.get(row).get(0);
 			switch (temp.getType()) {
 			case INTEGER:
-				this.selected.getProperties().replace(temp,
-						Integer.parseInt(value.toString()));
+				this.selected.getProperties().replace(temp, Integer.parseInt(value.toString()));
 				break;
 			case DOUBLE:
-				this.selected.getProperties().replace(temp,
-						Double.parseDouble(value.toString()));
+				this.selected.getProperties().replace(temp, Double.parseDouble(value.toString()));
 				break;
 			case COLOR:
 
@@ -99,10 +95,10 @@ public class PropertyCellModel extends AbstractTableModel {
 			this.fireTableDataChanged();
 		}
 	}
-	
+
 	public void setValueAt(Object value, PropertyEnum key) {
-		for(Vector<Object> temp : props){
-			if(((PropertyEnum)temp.get(0)).getPropertyName().equals(key.getPropertyName())){
+		for (Vector<Object> temp : props) {
+			if (((PropertyEnum) temp.get(0)).getPropertyName().equals(key.getPropertyName())) {
 				temp.set(1, value);
 				this.fireTableDataChanged();
 				return;
@@ -110,6 +106,5 @@ public class PropertyCellModel extends AbstractTableModel {
 		}
 		return;
 	}
-
 
 }
