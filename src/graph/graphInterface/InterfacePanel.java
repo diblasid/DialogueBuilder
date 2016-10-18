@@ -1,6 +1,6 @@
 package graph.graphInterface;
 
-import graph.Graph.GraphEnum;
+import graphwindow.WindowController.DataChangeListener;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -11,8 +11,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
-import java.util.Comparator;
-import java.util.Vector;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
@@ -24,11 +22,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+
+import property.PropertyEnum;
 
 public class InterfacePanel extends JPanel {
 
@@ -36,18 +33,24 @@ public class InterfacePanel extends JPanel {
 
 	private Dimension preferred;
 
+	private DataChangeListener changeListener;
+	private JTable properties;
+
 	public interface ControlCallback {
 		void newNodeClicked();
 
 		void newEdgeClicked();
 
-		void propertyChanged(GraphEnum e, String value);
+		PropertyCellModel getCellModel();
+
+		// void propertyChanged(GraphEnum e, String value);
 	}
 
 	private ControlCallback mListener;
 
 	public InterfacePanel(int width, int height, ControlCallback listener,
 			Dimension preferred) {
+		this.changeListener = changeListener;
 		this.setSize(width, height);
 		this.mListener = listener;
 		this.preferred = preferred;
@@ -88,28 +91,17 @@ public class InterfacePanel extends JPanel {
 
 		this.add(buttons);
 
-		JTable properties = new JTable();
-		properties.setModel(new PropertyCellModel());
+		properties = new JTable();
+		properties.setModel(this.mListener.getCellModel());
 		properties.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		properties.setCellEditor(new PropertyTableCellEditor());
 		properties.setDefaultRenderer(Object.class, new PropertyCellRenderer(
 				true));
-		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(
-				properties.getModel());
-		sorter.setSortable(0, false);
-		Comparator<Object> comparator = new Comparator<Object>() {
-			public int compare(Object o1, Object o2) {
-				return ((GraphEnum) o1).getName().compareTo(
-						((GraphEnum) o2).getName());
-			}
-		};
-		sorter.setComparator(0, comparator);
-		properties.setRowSorter(sorter);
+
 		properties.setSize(width, height / 2);
 		JScrollPane scroller = new JScrollPane(properties);
 
 		this.add(scroller);
-
 	}
 
 	@Override
@@ -145,12 +137,10 @@ public class InterfacePanel extends JPanel {
 			if (column == 1) {
 				this.row = row;
 				this.column = column;
-				((JTextField) component).setText(((GraphEnum) value).getValue()
-						.toString());
+				((JTextField) component).setText(value.toString());
 				return component;
 			} else {
-				((JLabel) name).setText(((GraphEnum) value).getName()
-						.toString());
+				((JLabel) name).setText(value.toString());
 				((JLabel) name).setEnabled(false);
 				return name;
 			}
@@ -159,68 +149,6 @@ public class InterfacePanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand().equals("edit")) {
 				fireEditingStopped();
-			}
-		}
-
-	}
-
-	class PropertyCellModel extends AbstractTableModel {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -1364419675640008237L;
-		private Vector<Vector<Object>> props;
-		private Vector<GraphEnum> values;
-		private Vector<String> header;
-
-		public PropertyCellModel() {
-			props = new Vector<Vector<Object>>();
-			values = new Vector<GraphEnum>();
-			for (GraphEnum key : GraphEnum.values()) {
-				Vector<Object> b = new Vector<Object>();
-				b.add(key.getName());
-				b.add(key.getValue());
-				values.add(key);
-				props.add(b);
-			}
-			header = new Vector<String>();
-			header.add("Property");
-			header.add("Value");
-
-		}
-
-		public String getColumnName(int col) {
-			return header.get(col);
-		}
-
-		public int getRowCount() {
-			return props.size();
-		}
-
-		public int getColumnCount() {
-			// TODO Auto-generated method stub
-			return header.size();
-		}
-
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			return props.get(rowIndex).get(columnIndex);
-		}
-
-		public boolean isCellEditable(int row, int col) {
-
-			if (col < 1) {
-				return false;
-			} else {
-				return true;
-			}
-		}
-
-		public void setValueAt(Object value, int row, int col) {
-			if (col == 1) {
-				props.get(row).set(col, value);
-				Object val = (Object) getValueAt(row, col);
-				mListener.propertyChanged(values.get(row), (String) val);
-				fireTableCellUpdated(row, col);
 			}
 		}
 
@@ -246,20 +174,7 @@ public class InterfacePanel extends JPanel {
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			String val;
-			if (value instanceof Integer) {
-				val = Integer.toString((Integer) value);
-				this.value = new JFormattedTextField(NumberFormat.INTEGER_FIELD);
-			} else if (value instanceof Double) {
-				val = Double.toString((Double) value);
-				this.value = new JFormattedTextField(
-						NumberFormat.FRACTION_FIELD);
-			} else if (value instanceof Color) {
-				Color color = ((Color) value);
-				val = Integer.toString(color.getRGB());
-			} else {
-				val = (String) value;
-			}
+
 			if (isBordered) {
 				if (isSelected) {
 					setBorder(table.getBorder());
@@ -270,14 +185,35 @@ public class InterfacePanel extends JPanel {
 				}
 			}
 			if (column == 1) {
+
+				String val;
+				if (value instanceof Integer) {
+					val = Integer.toString((Integer) value);
+					this.value = new JFormattedTextField(
+							NumberFormat.INTEGER_FIELD);
+				} else if (value instanceof Double) {
+					val = Double.toString((Double) value);
+					this.value = new JFormattedTextField(
+							NumberFormat.FRACTION_FIELD);
+				} else if (value instanceof Color) {
+					Color color = ((Color) value);
+					val = Integer.toString(color.getRGB());
+				} else {
+					val = value.toString();
+				}
 				((JTextField) this.value).setText(val);
 				return this.value;
 			} else {
-				((JLabel) name).setText(val);
-				((JLabel) name).setEnabled(false);
+				if (value instanceof PropertyEnum) {
+					String val = ((PropertyEnum) value).getPropertyName();
+					((JLabel) name).setText(val);
+					((JLabel) name).setEnabled(false);
+				}
+
 				return name;
 			}
 		}
 
 	}
+
 }
