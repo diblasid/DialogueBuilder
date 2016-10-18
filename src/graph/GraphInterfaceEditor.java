@@ -15,21 +15,21 @@ public class GraphInterfaceEditor extends Graph {
 
 	public void setZoom(double x, double y, double scale) {
 		super.setZoom(x, y, scale);
-		this.model.setValueAt(x, 2, 1);
-		this.model.setValueAt(y, 3, 1);
-		this.model.setValueAt(scale, 4, 1);
+		this.model.setValueAt(x, GraphEnum.ZOOM_X);
+		this.model.setValueAt(y, GraphEnum.ZOOM_Y);
+		this.model.setValueAt(scale, GraphEnum.ZOOM_SCALE);
 
 	}
 
 	public void setGridLineWidth(int gridLinesWidth) {
 		super.setGridLineWidth(gridLinesWidth);
-		this.model.setValueAt(gridLinesWidth, 0, 1);
+		this.model.setValueAt(gridLinesWidth, GraphEnum.GRID_LINE_WIDTH);
 
 	}
 
 	public void setGridLinesColor(Color gridLinesColor) {
 		super.setGridLinesColor(gridLinesColor);
-		this.model.setValueAt(gridLinesColor, 1, 1);
+		this.model.setValueAt(gridLinesColor, GraphEnum.GRID_LINE_COLOR);
 
 	}
 

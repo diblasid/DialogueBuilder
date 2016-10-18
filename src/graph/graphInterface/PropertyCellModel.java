@@ -1,5 +1,6 @@
 package graph.graphInterface;
 
+import graph.Graph.GraphEnum;
 import graph.Selectable;
 
 import java.util.Map.Entry;
@@ -82,5 +83,17 @@ public class PropertyCellModel extends AbstractTableModel {
 			this.fireTableDataChanged();
 		}
 	}
+	
+	public void setValueAt(Object value, PropertyEnum key) {
+		for(Vector<Object> temp : props){
+			if(((PropertyEnum)temp.get(0)).getPropertyName().equals(key.getPropertyName())){
+				temp.set(1, value);
+				this.fireTableDataChanged();
+				return;
+			}
+		}
+		return;
+	}
+
 
 }
