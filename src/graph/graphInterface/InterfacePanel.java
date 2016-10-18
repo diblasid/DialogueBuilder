@@ -50,7 +50,6 @@ public class InterfacePanel extends JPanel {
 
 	public InterfacePanel(int width, int height, ControlCallback listener,
 			Dimension preferred) {
-		this.changeListener = changeListener;
 		this.setSize(width, height);
 		this.mListener = listener;
 		this.preferred = preferred;

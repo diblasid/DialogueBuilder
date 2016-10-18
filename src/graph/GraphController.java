@@ -94,6 +94,8 @@ public class GraphController extends NodeController implements
 		if (selectedEdge != null) {
 			selectedEdge = null;
 		}
+		
+		graph.onDeselected();;
 
 	}
 
@@ -116,8 +118,10 @@ public class GraphController extends NodeController implements
 				"What would you like to name the new state?", "New State",
 				JOptionPane.QUESTION_MESSAGE);
 		if (name != null) {
-			graph.addNode(new Node(name, unselectedNodeColor, graph
-					.getDimPixels() / 2, graph.getDimPixels() / 2));
+			Node temp = new Node(name, unselectedNodeColor, graph
+					.getDimPixels() / 2, graph.getDimPixels() / 2);
+			graph.addNode(temp);
+			graph.onSelected(temp);
 			this.drawState = DrawState.DEFAULT_STATE;
 		}
 	}

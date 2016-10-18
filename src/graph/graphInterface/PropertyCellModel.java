@@ -33,6 +33,22 @@ public class PropertyCellModel extends AbstractTableModel {
 		header.add("Value");
 
 	}
+	
+	public void setSelected(Selectable selected){
+		this.selected = selected;
+		props = new Vector<Vector<Object>>();
+		for (Entry<Object, Object> key : selected.getProperties().entrySet()) {
+			Vector<Object> b = new Vector<Object>();
+			b.add(key.getKey());
+			b.add(key.getValue());
+			props.add(b);
+		}
+		header = new Vector<String>();
+		header.add("Property");
+		header.add("Value");
+		
+		this.fireTableDataChanged();
+	}
 
 	public String getColumnName(int col) {
 		return header.get(col);

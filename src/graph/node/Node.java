@@ -1,19 +1,48 @@
 package graph.node;
 
+import graph.Selectable;
 import graph.edge.Edge;
+import property.EditType;
+import property.PropertyEnum;
 
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
-public class Node {
+public class Node implements Selectable{
 
 	private String name;
 	private Color color, textColor;
 	private int minX, minY;
 	private List<Edge> incomingEdges, outgoingEdges;
 	private static int nodeWidth = 10, nodeHeight = 6, nodeTextLength = 10;
+	private Properties properties;
+	
+	public enum NodeEnum implements PropertyEnum{
+		
+		NODE_NAME("Name", EditType.STRING);
+		
+		private String propertyName;
+		private EditType type;
+		
+		private NodeEnum(String propertyName, EditType type){
+			this.propertyName = propertyName;
+			this.type = type;
+		}
+
+		@Override
+		public String getPropertyName() {
+			return propertyName;
+		}
+
+		@Override
+		public EditType getType() {
+			return type;
+		}
+		
+	}
 
 	public Node(String name, Color color, int centerX, int centerY) {
 		this.name = name;
@@ -22,6 +51,8 @@ public class Node {
 		this.outgoingEdges = new ArrayList<Edge>();
 		this.minX = centerX;
 		this.minY = centerY;
+		this.properties = new Properties();
+		properties.put(NodeEnum.NODE_NAME, name);
 	}
 
 	public Color getTextColor() {
@@ -152,6 +183,11 @@ public class Node {
 			edge.setStartPoint(newStart);
 		}
 
+	}
+
+	@Override
+	public Properties getProperties() {
+		return this.properties;
 	}
 
 }

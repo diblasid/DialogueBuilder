@@ -36,5 +36,13 @@ public class GraphInterfaceEditor extends Graph {
 	public PropertyCellModel getModel() {
 		return this.model;
 	}
+	
+	public void onSelected(Selectable selected){
+		this.model.setSelected(selected);
+	}
+	
+	public void onDeselected(){
+		this.model.setSelected(this);
+	}
 
 }
