@@ -18,18 +18,7 @@ public class PropertyCellModel extends AbstractTableModel {
 	private Selectable selected;
 
 	public PropertyCellModel(Selectable selected) {
-		this.selected = selected;
-		props = new Vector<Vector<Object>>();
-		for (Entry<Object, Object> key : selected.getProperties().entrySet()) {
-			Vector<Object> b = new Vector<Object>();
-			b.add(key.getKey());
-			b.add(key.getValue());
-			props.add(b);
-		}
-		header = new Vector<String>();
-		header.add("Property");
-		header.add("Value");
-
+		setSelected(selected);
 	}
 
 	public void setSelected(Selectable selected) {
