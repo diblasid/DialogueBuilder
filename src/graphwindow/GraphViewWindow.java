@@ -4,7 +4,6 @@ import graph.Graph;
 import graph.GraphController;
 import graph.GraphViewPanel;
 import graph.graphInterface.InterfacePanel;
-import graphwindow.WindowController.DataChangeListener;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,7 +13,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class GraphViewWindow extends JFrame implements DataChangeListener {
+public class GraphViewWindow extends JFrame {
 
 	/**
 	 * 
