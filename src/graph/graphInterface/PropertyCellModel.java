@@ -1,12 +1,13 @@
 package graph.graphInterface;
 
+import java.awt.Color;
 import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import graph.Selectable;
 import property.PropertyEnum;
+import property.Selectable;
 
 public class PropertyCellModel extends AbstractTableModel {
 	/**
@@ -70,13 +71,15 @@ public class PropertyCellModel extends AbstractTableModel {
 			PropertyEnum temp = (PropertyEnum) props.get(row).get(0);
 			switch (temp.getType()) {
 			case INTEGER:
-				this.selected.getProperties().replace(temp, Integer.parseInt(value.toString()));
+				this.selected.getProperties().replace(temp,
+						Integer.parseInt(value.toString()));
 				break;
 			case DOUBLE:
-				this.selected.getProperties().replace(temp, Double.parseDouble(value.toString()));
+				this.selected.getProperties().replace(temp,
+						Double.parseDouble(value.toString()));
 				break;
 			case COLOR:
-
+				this.selected.getProperties().replace(temp, (Color) value);
 				break;
 			default:
 				break;
@@ -87,7 +90,8 @@ public class PropertyCellModel extends AbstractTableModel {
 
 	public void setValueAt(Object value, PropertyEnum key) {
 		for (Vector<Object> temp : props) {
-			if (((PropertyEnum) temp.get(0)).getPropertyName().equals(key.getPropertyName())) {
+			if (((PropertyEnum) temp.get(0)).getPropertyName().equals(
+					key.getPropertyName())) {
 				temp.set(1, value);
 				this.fireTableDataChanged();
 				return;

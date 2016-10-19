@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import property.EditType;
 import property.PropertyEnum;
+import property.Selectable;
 
 public class Graph implements Selectable {
 

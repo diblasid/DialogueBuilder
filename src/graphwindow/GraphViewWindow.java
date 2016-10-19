@@ -1,5 +1,11 @@
 package graphwindow;
 
+import graph.Graph;
+import graph.GraphController;
+import graph.GraphViewPanel;
+import graph.graphInterface.InterfacePanel;
+import graphwindow.WindowController.DataChangeListener;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -7,12 +13,6 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import graph.GraphController;
-import graph.GraphInterfaceEditor;
-import graph.GraphViewPanel;
-import graph.graphInterface.InterfacePanel;
-import graphwindow.WindowController.DataChangeListener;
 
 public class GraphViewWindow extends JFrame implements DataChangeListener {
 
@@ -29,10 +29,11 @@ public class GraphViewWindow extends JFrame implements DataChangeListener {
 
 		container.setBounds(0, 0, (int) (1.5 * DIM_PIXELS), DIM_PIXELS);
 		container.setLayout(new GridBagLayout());
-		GraphInterfaceEditor graph = new GraphInterfaceEditor(DIM_PIXELS);
+		Graph graph = new Graph(DIM_PIXELS);
 		GraphController controller = new GraphController(graph);
 		display = new GraphViewPanel(controller);
-		display.setMaximumSize(new Dimension(java.awt.Toolkit.getDefaultToolkit().getScreenSize()));
+		display.setMaximumSize(new Dimension(java.awt.Toolkit
+				.getDefaultToolkit().getScreenSize()));
 		display.setMinimumSize(new Dimension(128, 128));
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
@@ -46,9 +47,11 @@ public class GraphViewWindow extends JFrame implements DataChangeListener {
 		c.gridy = 0;
 		container.add(display, c);
 
-		menu = new InterfacePanel(DIM_PIXELS / 2, DIM_PIXELS, controller, new Dimension(DIM_PIXELS / 2, DIM_PIXELS));
-		menu.setMaximumSize(
-				new Dimension(DIM_PIXELS / 2, (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight()));
+		menu = new InterfacePanel(DIM_PIXELS / 2, DIM_PIXELS, controller,
+				new Dimension(DIM_PIXELS / 2, DIM_PIXELS));
+		menu.setMaximumSize(new Dimension(DIM_PIXELS / 2,
+				(int) java.awt.Toolkit.getDefaultToolkit().getScreenSize()
+						.getHeight()));
 		menu.setMinimumSize(new Dimension(DIM_PIXELS / 2, DIM_PIXELS / 4));
 		menu.setBackground(Color.GRAY);
 		c.fill = GridBagConstraints.VERTICAL;

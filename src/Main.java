@@ -32,7 +32,7 @@ public class Main {
 		}
 
 		GraphViewWindow window = new GraphViewWindow("GUI Test", DIM_PIXELS);
-
+		window.setEnabled(true);
 	}
 
 }

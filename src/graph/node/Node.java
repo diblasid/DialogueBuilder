@@ -1,9 +1,6 @@
 package graph.node;
 
-import graph.Selectable;
 import graph.edge.Edge;
-import property.EditType;
-import property.PropertyEnum;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -11,72 +8,85 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class Node implements Selectable{
+import property.EditType;
+import property.PropertyEnum;
+import property.Selectable;
+
+public class Node implements Selectable {
 
 	private String name;
-	private Color color, textColor;
-	private int minX, minY;
 	private List<Edge> incomingEdges, outgoingEdges;
 	private static int nodeWidth = 10, nodeHeight = 6, nodeTextLength = 10;
 	private Properties properties;
-	
-	public enum NodeEnum implements PropertyEnum{
-		
-		NODE_NAME("Name", EditType.STRING);
-		
+	private Color currentColor;
+
+	public enum NodeEnum implements PropertyEnum {
+
+		NODE_NAME("Name", EditType.STRING), NODE_COLOR("Color", EditType.COLOR), X_POS(
+				"X", EditType.INTEGER), Y_POS("Y", EditType.INTEGER), NODE_SELECTED_COLOR(
+				"Selected Color", EditType.COLOR);
+
 		private String propertyName;
 		private EditType type;
-		
-		private NodeEnum(String propertyName, EditType type){
+
+		private NodeEnum(String propertyName, EditType type) {
 			this.propertyName = propertyName;
 			this.type = type;
 		}
 
-		@Override
 		public String getPropertyName() {
 			return propertyName;
 		}
 
-		@Override
 		public EditType getType() {
 			return type;
 		}
-		
+
 	}
 
 	public Node(String name, Color color, int centerX, int centerY) {
 		this.name = name;
-		this.color = color;
 		this.incomingEdges = new ArrayList<Edge>();
 		this.outgoingEdges = new ArrayList<Edge>();
-		this.minX = centerX;
-		this.minY = centerY;
 		this.properties = new Properties();
+		this.currentColor = color;
 		properties.put(NodeEnum.NODE_NAME, name);
+		properties.put(NodeEnum.NODE_COLOR, color);
+		properties.put(NodeEnum.X_POS, centerX);
+		properties.put(NodeEnum.Y_POS, centerY);
+		properties.put(NodeEnum.NODE_SELECTED_COLOR, color);
 	}
 
 	public Color getTextColor() {
-		return textColor;
+		return (Color) properties.get(NodeEnum.NODE_COLOR);
 	}
 
 	public void setTextColor(Color textColor) {
-		this.textColor = textColor;
 	}
 
 	public int getMinX() {
-		return minX;
+		return (Integer) properties.get(NodeEnum.X_POS);
 	}
 
 	public int getMinY() {
-		return minY;
+		return (Integer) properties.get(NodeEnum.Y_POS);
 	}
 
 	public void setMinX(int minX) {
-		this.minX = minX;
+		properties.replace(NodeEnum.X_POS, minX);
 	}
 
 	public void setMinY(int minY) {
-		this.minY = minY;
+		properties.replace(NodeEnum.Y_POS, minY);
+	}
+
+	public void setSelectedColor(Color selColor) {
+		properties.replace(NodeEnum.NODE_SELECTED_COLOR, selColor);
+		currentColor = selColor;
+	}
+
+	public Color getSelectedColor() {
+		return (Color) properties.get(NodeEnum.NODE_SELECTED_COLOR);
 	}
 
 	public void addIncomingEdge(Edge edge) {
@@ -109,12 +119,20 @@ public class Node implements Selectable{
 		return this.outgoingEdges;
 	}
 
+	public Color getUnselectedColor() {
+		return (Color) properties.get(NodeEnum.NODE_COLOR);
+	}
+
+	public void setUnselectedColor(Color color) {
+		properties.replace(NodeEnum.NODE_COLOR, color);
+	}
+
 	public Color getColor() {
-		return color;
+		return currentColor;
 	}
 
 	public void setColor(Color color) {
-		this.color = color;
+		this.currentColor = color;
 	}
 
 	public String getText() {
@@ -152,8 +170,8 @@ public class Node implements Selectable{
 	public Point getNearestBound(double x, double y, int unitSize) {
 		double a = nodeWidth * unitSize;
 		double b = nodeHeight * unitSize;
-		double midX = minX + a / 2;
-		double midY = minY + b / 2;
+		double midX = getMinX() + a / 2;
+		double midY = getMinY() + b / 2;
 		double angle = Math.atan2(-(y - midY), x - midX);
 		double radius = 0.5
 				* a
@@ -168,8 +186,8 @@ public class Node implements Selectable{
 	}
 
 	public void move(double x, double y, int unitSize) {
-		minX = (int) (minX + x);
-		minY = (int) (minY + y);
+		setMinX((int) (getMinX() + x));
+		setMinY((int) (getMinY() + y));
 
 		for (Edge edge : incomingEdges) {
 			Point newEnd = getNearestBound(edge.getControlPoint().getX(), edge
@@ -185,7 +203,6 @@ public class Node implements Selectable{
 
 	}
 
-	@Override
 	public Properties getProperties() {
 		return this.properties;
 	}
