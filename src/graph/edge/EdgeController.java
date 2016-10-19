@@ -8,8 +8,7 @@ import java.awt.geom.QuadCurve2D;
 
 public class EdgeController {
 
-	public static final double ARROW_ANGLE_RAD = Math.PI / 8,
-			ARROW_WIDTH = 0.1;
+	public static final double ARROW_ANGLE_RAD = Math.PI / 8;
 
 	public static final int ARROW_HEAD_SIZE = 1;
 
@@ -19,7 +18,7 @@ public class EdgeController {
 	protected void drawEdge(Edge edge, Graphics2D g2d, int unitSize) {
 
 		g2d.setColor(edge.getLineColor());
-		g2d.setStroke(new BasicStroke((int) ARROW_WIDTH * unitSize));
+		g2d.setStroke(new BasicStroke((int) edge.getEdgeWidth()));
 		QuadCurve2D q = new QuadCurve2D.Float();
 
 		q.setCurve((float) edge.getStartPoint().getX(), (float) edge

@@ -18,13 +18,14 @@ public class Edge implements Selectable {
 	private Properties properties;
 	private Color currentColor;
 
-	public enum EdgeEnum implements PropertyEnum {
+	private enum EdgeEnum implements PropertyEnum {
 
 		EDGE_SELECTED_COLOR("Selected Color", EditType.COLOR), EDGE_COLOR(
 				"Color", EditType.COLOR), LINE_COLOR("Line Color",
 				EditType.COLOR), SELECTION_RADIUS("Edge Selector Radius",
 				EditType.INTEGER), CONTROL_X("Control Point X", EditType.DOUBLE), CONTROL_Y(
-				"Control Point Y", EditType.DOUBLE);
+				"Control Point Y", EditType.DOUBLE), EDGE_WIDTH("Edge Width",
+				EditType.DOUBLE);
 
 		private String propertyName;
 		private EditType type;
@@ -55,7 +56,16 @@ public class Edge implements Selectable {
 		properties.put(EdgeEnum.SELECTION_RADIUS, 1);
 		properties.put(EdgeEnum.CONTROL_X, start.getX());
 		properties.put(EdgeEnum.CONTROL_Y, start.getY());
+		properties.put(EdgeEnum.EDGE_WIDTH, 3.0);
 
+	}
+
+	public double getEdgeWidth() {
+		return (Double) properties.get(EdgeEnum.EDGE_WIDTH);
+	}
+
+	public void setEdgeWidth(double width) {
+		properties.replace(EdgeEnum.EDGE_WIDTH, width);
 	}
 
 	public Color getCurrentColor() {

@@ -191,7 +191,8 @@ public class GraphController extends NodeController implements
 				+ graph.getZoomPointX() - dx);
 		mouseY = ((e.getY() - graph.getZoomPointY()) / graph.getZoomScale()
 				+ graph.getZoomPointY() - dy);
-		if (drawState == DrawState.CREATING_EDGE && newEdge != null) {
+		if (drawState == DrawState.CREATING_EDGE && newEdge != null
+				&& selectedNode != null) {
 			Point control = new Point();
 			control.setLocation(newEdge.getMidPoint().getX(), newEdge
 					.getMidPoint().getY());
