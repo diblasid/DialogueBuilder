@@ -71,15 +71,16 @@ public class PropertyCellModel extends AbstractTableModel {
 			PropertyEnum temp = (PropertyEnum) props.get(row).get(0);
 			switch (temp.getType()) {
 			case INTEGER:
-				this.selected.getProperties().replace(temp,
-						Integer.parseInt(value.toString()));
+				this.selected.getProperties().replace(temp, Integer.parseInt(value.toString()));
 				break;
 			case DOUBLE:
-				this.selected.getProperties().replace(temp,
-						Double.parseDouble(value.toString()));
+				this.selected.getProperties().replace(temp, Double.parseDouble(value.toString()));
 				break;
 			case COLOR:
 				this.selected.getProperties().replace(temp, (Color) value);
+				break;
+			case STRING:
+				this.selected.getProperties().replace(temp, value.toString());
 				break;
 			default:
 				break;
@@ -90,8 +91,7 @@ public class PropertyCellModel extends AbstractTableModel {
 
 	public void setValueAt(Object value, PropertyEnum key) {
 		for (Vector<Object> temp : props) {
-			if (((PropertyEnum) temp.get(0)).getPropertyName().equals(
-					key.getPropertyName())) {
+			if (((PropertyEnum) temp.get(0)).getPropertyName().equals(key.getPropertyName())) {
 				temp.set(1, value);
 				this.fireTableDataChanged();
 				return;
