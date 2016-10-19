@@ -13,8 +13,6 @@ import property.PropertyEnum;
 import property.Selectable;
 
 public class Node implements Selectable {
-
-	private String name;
 	private List<Edge> incomingEdges, outgoingEdges;
 	private static int nodeWidth = 10, nodeHeight = 6, nodeTextLength = 10;
 	private Properties properties;
@@ -24,7 +22,8 @@ public class Node implements Selectable {
 
 		NODE_NAME("Name", EditType.STRING), NODE_COLOR("Color", EditType.COLOR), X_POS(
 				"X", EditType.INTEGER), Y_POS("Y", EditType.INTEGER), NODE_SELECTED_COLOR(
-				"Selected Color", EditType.COLOR);
+				"Selected Color", EditType.COLOR), TEXT_COLOR("Text Color",
+				EditType.COLOR);
 
 		private String propertyName;
 		private EditType type;
@@ -44,24 +43,25 @@ public class Node implements Selectable {
 
 	}
 
-	public Node(String name, Color color, int centerX, int centerY) {
-		this.name = name;
+	public Node(String name, int centerX, int centerY) {
 		this.incomingEdges = new ArrayList<Edge>();
 		this.outgoingEdges = new ArrayList<Edge>();
 		this.properties = new Properties();
-		this.currentColor = color;
+		this.currentColor = Color.CYAN;
 		properties.put(NodeEnum.NODE_NAME, name);
-		properties.put(NodeEnum.NODE_COLOR, color);
+		properties.put(NodeEnum.NODE_COLOR, Color.CYAN);
 		properties.put(NodeEnum.X_POS, centerX);
 		properties.put(NodeEnum.Y_POS, centerY);
-		properties.put(NodeEnum.NODE_SELECTED_COLOR, color);
+		properties.put(NodeEnum.NODE_SELECTED_COLOR, Color.BLUE);
+		properties.put(NodeEnum.TEXT_COLOR, Color.WHITE);
 	}
 
 	public Color getTextColor() {
-		return (Color) properties.get(NodeEnum.NODE_COLOR);
+		return (Color) properties.get(NodeEnum.TEXT_COLOR);
 	}
 
 	public void setTextColor(Color textColor) {
+		properties.replace(NodeEnum.TEXT_COLOR, textColor);
 	}
 
 	public int getMinX() {
@@ -136,11 +136,11 @@ public class Node implements Selectable {
 	}
 
 	public String getText() {
-		return name;
+		return (String) properties.get(NodeEnum.NODE_NAME);
 	}
 
 	public void setText(String text) {
-		this.name = text;
+		properties.replace(NodeEnum.NODE_NAME, text);
 	}
 
 	public static int getNodeWidth() {

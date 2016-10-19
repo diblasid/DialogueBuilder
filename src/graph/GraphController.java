@@ -2,7 +2,6 @@ package graph;
 
 import graph.Graph.GraphEnum;
 import graph.edge.Edge;
-import graph.edge.EdgeController;
 import graph.graphInterface.InterfacePanel;
 import graph.graphInterface.PropertyCellModel;
 import graph.node.Node;
@@ -10,7 +9,6 @@ import graph.node.Node.NodeEnum;
 import graph.node.NodeController;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -23,7 +21,6 @@ import java.awt.geom.Ellipse2D;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.event.TableModelEvent;
 
 public class GraphController extends NodeController implements
 		InterfacePanel.ControlCallback, MouseMotionListener, MouseListener,
@@ -33,7 +30,6 @@ public class GraphController extends NodeController implements
 		DEFAULT_STATE, CREATING_EDGE, ACTION_RADIUS_CHANGE, TRANSLATE, NODE_EDIT;
 	}
 
-	private Color defaultColor = Color.CYAN;
 	private Graph graph;
 	private Node selectedNode;
 	private Edge newEdge, selectedEdge;
@@ -122,7 +118,7 @@ public class GraphController extends NodeController implements
 				"What would you like to name the new state?", "New State",
 				JOptionPane.QUESTION_MESSAGE);
 		if (name != null) {
-			Node temp = new Node(name, defaultColor, graph.getDimPixels() / 2,
+			Node temp = new Node(name, graph.getDimPixels() / 2,
 					graph.getDimPixels() / 2);
 			graph.addNode(temp);
 			model.setSelected(temp);
@@ -207,6 +203,7 @@ public class GraphController extends NodeController implements
 			Point end = new Point();
 			end.setLocation(mouseX, mouseY);
 			newEdge.setEndPoint(end);
+			model.setSelected(newEdge);
 
 		}
 	}
@@ -236,11 +233,14 @@ public class GraphController extends NodeController implements
 		for (Node node : graph.getNodes()) {
 			for (Edge edge : node.getOutgoingEdges()) {
 				if (Point.distance(mouseX, mouseY, edge.getSelectorPoint()
-						.getX(), edge.getSelectorPoint().getY()) < EdgeController.SELECTION_RADIUS
-						* graph.getUnitSize()
+						.getX(), edge.getSelectorPoint().getY()) < edge
+						.getSelectionRadius() * graph.getUnitSize()
 						&& drawState == DrawState.DEFAULT_STATE) {
 					drawState = DrawState.ACTION_RADIUS_CHANGE;
 					selectedEdge = edge;
+					selectedEdge.setCurrentColor(selectedEdge
+							.getSelectedColor());
+					model.setSelected(selectedEdge);
 					return;
 				}
 			}
@@ -259,6 +259,7 @@ public class GraphController extends NodeController implements
 						newEdge.setEndPoint(node.getNearestBound(newEdge
 								.getControlPoint().getX(), newEdge
 								.getControlPoint().getY(), graph.getUnitSize()));
+						newEdge.setCurrentColor(newEdge.getUnselectedColor());
 						newEdge = null;
 						emptySelected();
 						drawState = DrawState.DEFAULT_STATE;
@@ -270,6 +271,8 @@ public class GraphController extends NodeController implements
 						tempStart.setLocation(ellipse.getCenterX(),
 								ellipse.getCenterY());
 						newEdge = new Edge(tempStart);
+						newEdge.setCurrentColor(newEdge.getSelectedColor());
+						model.setSelected(newEdge);
 						selectedNode.addOutgoingEdge(newEdge);
 						selectedNode.setColor(selectedNode.getSelectedColor());
 					}
@@ -320,15 +323,6 @@ public class GraphController extends NodeController implements
 			this.scrollAmount = 0;
 
 		}
-	}
-
-	public void tableChanged(TableModelEvent e) {
-		/*
-		 * int row = e.getFirstRow(); int column = e.getColumn(); TableModel
-		 * model = (TableModel) e.getSource(); String columnName =
-		 * model.getColumnName(column); String data = (String)
-		 * model.getValueAt(row, column);
-		 */
 	}
 
 	public PropertyCellModel getCellModel() {

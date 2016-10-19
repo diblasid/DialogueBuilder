@@ -88,9 +88,4 @@ public class GraphViewWindow extends JFrame {
 
 	}
 
-	public void onDataChanged() {
-		menu.repaint();
-		display.repaint();
-	}
-
 }

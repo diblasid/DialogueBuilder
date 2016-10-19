@@ -1,27 +1,24 @@
 package graph.edge;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.QuadCurve2D;
 
 public class EdgeController {
-	private static final Color selectionColor = Color.green,
-			lineColor = Color.black;
 
 	public static final double ARROW_ANGLE_RAD = Math.PI / 8,
 			ARROW_WIDTH = 0.1;
 
-	public static final int SELECTION_RADIUS = 1, ARROW_HEAD_SIZE = 1;
+	public static final int ARROW_HEAD_SIZE = 1;
 
 	protected EdgeController() {
 	}
 
 	protected void drawEdge(Edge edge, Graphics2D g2d, int unitSize) {
 
-		g2d.setColor(lineColor);
+		g2d.setColor(edge.getLineColor());
 		g2d.setStroke(new BasicStroke((int) ARROW_WIDTH * unitSize));
 		QuadCurve2D q = new QuadCurve2D.Float();
 
@@ -32,12 +29,14 @@ public class EdgeController {
 						.getY());
 		g2d.draw(q);
 		this.drawCurvedArrowHead(edge, g2d, unitSize);
-		g2d.setColor(selectionColor);
+		g2d.setColor(edge.getCurrentColor());
 
 		Ellipse2D ellipse = new Ellipse2D.Double(edge.getSelectorPoint().getX()
-				- unitSize * SELECTION_RADIUS / 2, edge.getSelectorPoint()
-				.getY() - unitSize * SELECTION_RADIUS / 2, SELECTION_RADIUS
-				* unitSize, SELECTION_RADIUS * unitSize);
+				- unitSize * edge.getSelectionRadius() / 2, edge
+				.getSelectorPoint().getY()
+				- unitSize
+				* edge.getSelectionRadius() / 2, edge.getSelectionRadius()
+				* unitSize, edge.getSelectionRadius() * unitSize);
 		g2d.fill(ellipse);
 
 	}

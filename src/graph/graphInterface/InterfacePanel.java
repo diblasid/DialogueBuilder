@@ -62,7 +62,6 @@ public class InterfacePanel extends JPanel {
 		newStateButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("New State Created");
 				mListener.newNodeClicked();
 			}
 
@@ -74,7 +73,6 @@ public class InterfacePanel extends JPanel {
 		createActionButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("New Action Created");
 				mListener.newEdgeClicked();
 			}
 
