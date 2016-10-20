@@ -1,5 +1,5 @@
-import graph.GraphViewPanel;
-import graph.graphInterface.InterfacePanel;
+import graphInterface.InterfacePanel;
+import graphInterface.graph.GraphViewPanel;
 import graphwindow.GraphViewWindow;
 
 import javax.swing.JFrame;

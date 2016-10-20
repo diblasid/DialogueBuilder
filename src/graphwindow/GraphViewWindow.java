@@ -1,9 +1,9 @@
 package graphwindow;
 
-import graph.Graph;
-import graph.GraphController;
-import graph.GraphViewPanel;
-import graph.graphInterface.InterfacePanel;
+import graphInterface.InterfacePanel;
+import graphInterface.graph.Graph;
+import graphInterface.graph.GraphController;
+import graphInterface.graph.GraphViewPanel;
 
 import java.awt.Color;
 import java.awt.Dimension;
